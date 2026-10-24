@@ -703,33 +703,105 @@ function setupAuth() {
     if (submitBtn) submitBtn.classList.add('loading');
     if (errorDiv) errorDiv.textContent = '';
 
-    // Known team profiles dictionary or dynamic parsing for any custom user
-    const knownProfiles = {
-      'chaitanya@infrapilot.dev': { name: 'Chaitanya', role: 'DEVOPS LEAD', avatar: 'C', color: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
-      'priya@infrapilot.dev': { name: 'Priya Sharma', role: 'SR. BACKEND ENGINEER', avatar: 'P', color: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
-      'arjun@infrapilot.dev': { name: 'Arjun Patel', role: 'DEVOPS ENGINEER', avatar: 'A', color: 'linear-gradient(135deg, #3B82F6, #06B6D4)' },
-      'sneha@infrapilot.dev': { name: 'Sneha Rao', role: 'FRONTEND DEVELOPER', avatar: 'S', color: 'linear-gradient(135deg, #F59E0B, #EF4444)' },
-      'ravi@infrapilot.dev': { name: 'Ravi Kumar', role: 'SRE ENGINEER', avatar: 'R', color: 'linear-gradient(135deg, #6B7280, #9CA3AF)' }
+    // Multi-Tenant Directory: Organizations with isolated Root Admins & Team Members
+    const tenantOrganizations = {
+      'infrapilot': {
+        name: 'InfraPilot Core',
+        badge: 'InfraPilot Core Systems',
+        rootAdminEmail: 'chaitanya@infrapilot.dev',
+        users: {
+          'chaitanya@infrapilot.dev': { name: 'Chaitanya', role: 'PLATFORM ROOT ADMIN', isRoot: true, avatar: 'C', color: 'linear-gradient(135deg, #10B981, #059669)', orgName: 'InfraPilot Core' },
+          'priya@infrapilot.dev': { name: 'Priya Sharma', role: 'SR. BACKEND ENGINEER', isRoot: false, avatar: 'P', color: 'linear-gradient(135deg, #6366F1, #8B5CF6)', orgName: 'InfraPilot Core' },
+          'arjun@infrapilot.dev': { name: 'Arjun Patel', role: 'DEVOPS ENGINEER', isRoot: false, avatar: 'A', color: 'linear-gradient(135deg, #3B82F6, #06B6D4)', orgName: 'InfraPilot Core' },
+          'sneha@infrapilot.dev': { name: 'Sneha Rao', role: 'SECURITY ARCHITECT', isRoot: false, avatar: 'S', color: 'linear-gradient(135deg, #F59E0B, #EF4444)', orgName: 'InfraPilot Core' }
+        }
+      },
+      'acme': {
+        name: 'Acme Cloud Dynamics',
+        badge: 'Acme Cloud Dynamics',
+        rootAdminEmail: 'marcus.vance@acme.com',
+        users: {
+          'marcus.vance@acme.com': { name: 'Marcus Vance', role: 'ORG ROOT ADMIN', isRoot: true, avatar: 'M', color: 'linear-gradient(135deg, #EC4899, #8B5CF6)', orgName: 'Acme Cloud Dynamics' },
+          'elena.rostova@acme.com': { name: 'Elena Rostova', role: 'LEAD DEVELOPER', isRoot: false, avatar: 'E', color: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', orgName: 'Acme Cloud Dynamics' },
+          'david.kim@acme.com': { name: 'David Kim', role: 'DEVOPS SRE', isRoot: false, avatar: 'D', color: 'linear-gradient(135deg, #14B8A6, #0D9488)', orgName: 'Acme Cloud Dynamics' }
+        }
+      },
+      'fintech': {
+        name: 'FinTech Global Systems',
+        badge: 'FinTech Global Systems',
+        rootAdminEmail: 'sarah.jenkins@fintech.io',
+        users: {
+          'sarah.jenkins@fintech.io': { name: 'Sarah Jenkins', role: 'ORG ROOT ADMIN', isRoot: true, avatar: 'S', color: 'linear-gradient(135deg, #F59E0B, #D97706)', orgName: 'FinTech Global Systems' },
+          'arjun.patel@fintech.io': { name: 'Arjun Patel', role: 'FINTECH SRE SPECIALIST', isRoot: false, avatar: 'A', color: 'linear-gradient(135deg, #6366F1, #4338CA)', orgName: 'FinTech Global Systems' }
+        }
+      }
     };
 
+    // Global helper to switch organization on login screen
+    window.onOrgSelected = function(orgKey) {
+      const org = tenantOrganizations[orgKey] || tenantOrganizations['infrapilot'];
+      const chipsContainer = document.getElementById('login-quick-chips');
+      const emailInput = document.getElementById('login-email');
+      
+      if (emailInput && org.rootAdminEmail) {
+        emailInput.value = org.rootAdminEmail;
+      }
+
+      if (chipsContainer) {
+        let html = `<span style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono);">Root Admin & Team:</span>`;
+        Object.keys(org.users).forEach(em => {
+          const u = org.users[em];
+          const badgeText = u.isRoot ? `👑 ${u.name.split(' ')[0]} (Root)` : `${u.name.split(' ')[0]} (${u.role.split(' ')[0]})`;
+          html += `<button type="button" class="login-chip-btn" onclick="fillTestUser('${em}', 'admin123')">${badgeText}</button> `;
+        });
+        chipsContainer.innerHTML = html;
+      }
+    };
+
+    window.selectCompanyTenant = function(orgKey) {
+      const selectEl = document.getElementById('login-org');
+      if (selectEl) {
+        selectEl.value = orgKey;
+        window.onOrgSelected(orgKey);
+      }
+    };
+
+    // Determine current active organization
+    const orgSelect = document.getElementById('login-org');
+    let currentOrgKey = orgSelect ? orgSelect.value : 'infrapilot';
+    
+    // Auto-detect organization from email domain if typed manually
+    if (email.includes('@acme.com')) currentOrgKey = 'acme';
+    else if (email.includes('@fintech.io')) currentOrgKey = 'fintech';
+    else if (email.includes('@infrapilot.dev')) currentOrgKey = 'infrapilot';
+
+    const currentOrg = tenantOrganizations[currentOrgKey] || tenantOrganizations['infrapilot'];
     const key = email.toLowerCase();
-    let profile = knownProfiles[key];
+    let profile = currentOrg.users[key];
+
+    // If not predefined in organization, dynamically create user in this tenant
     if (!profile) {
       const prefix = email.split('@')[0].replace(/[._-]/g, ' ');
       const formatted = prefix.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const isCustomRoot = email.startsWith('admin') || email.startsWith('root');
       profile = {
         name: formatted || 'Team Member',
-        role: 'DEVELOPER',
+        role: isCustomRoot ? 'ORG ROOT ADMIN' : 'DEVELOPER',
+        isRoot: isCustomRoot,
         avatar: (formatted || 'U').charAt(0).toUpperCase(),
-        color: 'linear-gradient(135deg, #0EA5E9, #6366F1)'
+        color: isCustomRoot ? 'linear-gradient(135deg, #10B981, #059669)' : 'linear-gradient(135deg, #0EA5E9, #6366F1)',
+        orgName: currentOrg.name
       };
     }
 
-    // Set active user state
+    // Set active user state with tenant isolation metadata
     authState.user = {
       email: email,
       name: profile.name,
       role: profile.role,
+      isRoot: profile.isRoot || false,
+      orgKey: currentOrgKey,
+      orgName: profile.orgName || currentOrg.name,
       avatar: profile.avatar,
       color: profile.color
     };
@@ -744,12 +816,12 @@ function setupAuth() {
       success: true
     });
 
-    // Record Audit Event
+    // Record Audit Event with Tenant attribution
     state.auditEvents.unshift({
       timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      user: `${authState.user.name.toLowerCase()} (${authState.user.role.toLowerCase()})`,
-      action: "USER_AUTHENTICATED",
-      resource: "oauth2/session/" + authState.sessionId,
+      user: `${authState.user.name} [${authState.user.orgName}]`,
+      action: authState.user.isRoot ? "ORG_ROOT_ADMIN_AUTHENTICATED" : "MEMBER_AUTHENTICATED",
+      resource: `tenants/${authState.user.orgKey}/oauth2/${authState.sessionId}`,
       ip: "127.0.0.1"
     });
     renderAuditTable();
@@ -767,6 +839,12 @@ function setupAuth() {
 
   // Helper function to fill test account and immediately authenticate
   window.fillTestUser = function(email, pass) {
+    const orgSelect = document.getElementById('login-org');
+    if (orgSelect) {
+      if (email.includes('@acme.com')) orgSelect.value = 'acme';
+      else if (email.includes('@fintech.io')) orgSelect.value = 'fintech';
+      else orgSelect.value = 'infrapilot';
+    }
     window.performLogin(email, pass);
   };
 
@@ -875,11 +953,13 @@ function updateUserProfileDisplay() {
   const hRole = document.getElementById('header-user-role');
   const hAvatar = document.getElementById('header-user-avatar');
   const hAvatarWrap = document.getElementById('header-avatar-wrap');
+  const hOrgName = document.getElementById('header-org-name');
 
   if (hName) hName.textContent = authState.user.name;
   if (hRole) hRole.textContent = authState.user.role;
   if (hAvatar) hAvatar.textContent = authState.user.avatar;
   if (hAvatarWrap && authState.user.color) hAvatarWrap.style.background = authState.user.color;
+  if (hOrgName) hOrgName.textContent = authState.user.orgName || 'InfraPilot Core';
 
   // Update User Dropdown Panel
   const upName = document.getElementById('up-user-name');
@@ -887,12 +967,22 @@ function updateUserProfileDisplay() {
   const upRole = document.getElementById('up-role-badge');
   const upAvatar = document.getElementById('up-avatar-text');
   const upAvatarWrap = document.getElementById('up-avatar-wrap');
+  const upTenant = document.getElementById('up-tenant-name');
+  const upRootBadge = document.getElementById('up-root-badge');
 
   if (upName) upName.textContent = authState.user.name;
   if (upEmail) upEmail.textContent = authState.user.email;
   if (upRole) upRole.textContent = authState.user.role;
   if (upAvatar) upAvatar.textContent = authState.user.avatar;
   if (upAvatarWrap && authState.user.color) upAvatarWrap.style.background = authState.user.color;
+  if (upTenant) upTenant.textContent = authState.user.orgName || 'InfraPilot Core';
+  if (upRootBadge) {
+    if (authState.user.isRoot) {
+      upRootBadge.innerHTML = `<span style="background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.3);">👑 ROOT SUPER ADMIN</span>`;
+    } else {
+      upRootBadge.innerHTML = `<span style="background: rgba(99, 102, 241, 0.2); color: #818CF8; padding: 2px 7px; border-radius: 4px; font-size: 0.72rem; font-weight: 600;">MEMBER</span>`;
+    }
+  }
 
   // Session & Metadata elements
   const sessionEl = document.getElementById('up-session-id');

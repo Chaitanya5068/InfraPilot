@@ -4,58 +4,48 @@
 
 const adminState = {
   activeTab: 'overview',
+  currentTenant: 'infrapilot', // 'infrapilot' (Platform Super), 'acme', 'fintech'
   roleFilter: 'ALL',
   loginFilter: 'ALL',
   userSearch: '',
   loginSearch: '',
 
-  // In-memory data matching PostgreSQL V1 & V2 schema
-  users: [
-    {
-      id: "usr-01",
-      name: "Chaitanya",
-      email: "chaitanya@infrapilot.dev",
-      role: "ADMIN",
-      mfa: true,
-      status: "ACTIVE",
-      lastActive: "Just now",
-      avatar: "C",
-      color: "linear-gradient(135deg, #6366F1, #8B5CF6)"
+  // Organizations & Isolated Tenants Data
+  tenants: {
+    'infrapilot': {
+      name: 'InfraPilot Core Systems',
+      slug: 'infrapilot',
+      rootAdmin: { name: 'Chaitanya', email: 'chaitanya@infrapilot.dev', role: 'PLATFORM ROOT ADMIN', avatar: 'C' },
+      users: [
+        { id: "usr-01", name: "Chaitanya", email: "chaitanya@infrapilot.dev", role: "ADMIN", isRoot: true, org: "InfraPilot", mfa: true, status: "ACTIVE", lastActive: "Just now", avatar: "C", color: "linear-gradient(135deg, #10B981, #059669)" },
+        { id: "usr-02", name: "Priya Sharma", email: "priya@infrapilot.dev", role: "DEVELOPER", isRoot: false, org: "InfraPilot", mfa: true, status: "ACTIVE", lastActive: "2 mins ago", avatar: "P", color: "linear-gradient(135deg, #6366F1, #8B5CF6)" },
+        { id: "usr-03", name: "Arjun Patel", email: "arjun@infrapilot.dev", role: "DEVOPS", isRoot: false, org: "InfraPilot", mfa: true, status: "ACTIVE", lastActive: "5 mins ago", avatar: "A", color: "linear-gradient(135deg, #3B82F6, #06B6D4)" },
+        { id: "usr-04", name: "Sneha Rao", email: "sneha@infrapilot.dev", role: "DEVELOPER", isRoot: false, org: "InfraPilot", mfa: false, status: "ACTIVE", lastActive: "8 mins ago", avatar: "S", color: "linear-gradient(135deg, #F59E0B, #EF4444)" }
+      ]
     },
-    {
-      id: "usr-02",
-      name: "Priya Sharma",
-      email: "priya@infrapilot.dev",
-      role: "DEVELOPER",
-      mfa: true,
-      status: "ACTIVE",
-      lastActive: "2 mins ago",
-      avatar: "P",
-      color: "linear-gradient(135deg, #6366F1, #8B5CF6)"
+    'acme': {
+      name: 'Acme Cloud Dynamics',
+      slug: 'acme',
+      rootAdmin: { name: 'Marcus Vance', email: 'marcus.vance@acme.com', role: 'ORG ROOT ADMIN', avatar: 'M' },
+      users: [
+        { id: "usr-acme-01", name: "Marcus Vance", email: "marcus.vance@acme.com", role: "ADMIN", isRoot: true, org: "Acme Corp", mfa: true, status: "ACTIVE", lastActive: "Just now", avatar: "M", color: "linear-gradient(135deg, #EC4899, #8B5CF6)" },
+        { id: "usr-acme-02", name: "Elena Rostova", email: "elena.rostova@acme.com", role: "DEVELOPER", isRoot: false, org: "Acme Corp", mfa: true, status: "ACTIVE", lastActive: "12 mins ago", avatar: "E", color: "linear-gradient(135deg, #3B82F6, #1D4ED8)" },
+        { id: "usr-acme-03", name: "David Kim", email: "david.kim@acme.com", role: "DEVOPS", isRoot: false, org: "Acme Corp", mfa: true, status: "ACTIVE", lastActive: "25 mins ago", avatar: "D", color: "linear-gradient(135deg, #14B8A6, #0D9488)" }
+      ]
     },
-    {
-      id: "usr-03",
-      name: "Arjun Patel",
-      email: "arjun@infrapilot.dev",
-      role: "DEVOPS",
-      mfa: true,
-      status: "ACTIVE",
-      lastActive: "5 mins ago",
-      avatar: "A",
-      color: "linear-gradient(135deg, #3B82F6, #06B6D4)"
-    },
-    {
-      id: "usr-04",
-      name: "Sneha Rao",
-      email: "sneha@infrapilot.dev",
-      role: "DEVELOPER",
-      mfa: false,
-      status: "ACTIVE",
-      lastActive: "8 mins ago",
-      avatar: "S",
-      color: "linear-gradient(135deg, #F59E0B, #EF4444)"
+    'fintech': {
+      name: 'FinTech Global Systems',
+      slug: 'fintech',
+      rootAdmin: { name: 'Sarah Jenkins', email: 'sarah.jenkins@fintech.io', role: 'ORG ROOT ADMIN', avatar: 'S' },
+      users: [
+        { id: "usr-ft-01", name: "Sarah Jenkins", email: "sarah.jenkins@fintech.io", role: "ADMIN", isRoot: true, org: "FinTech Global", mfa: true, status: "ACTIVE", lastActive: "Just now", avatar: "S", color: "linear-gradient(135deg, #F59E0B, #D97706)" },
+        { id: "usr-ft-02", name: "Arjun Patel", email: "arjun.patel@fintech.io", role: "DEVOPS", isRoot: false, org: "FinTech Global", mfa: true, status: "ACTIVE", lastActive: "18 mins ago", avatar: "A", color: "linear-gradient(135deg, #6366F1, #4338CA)" }
+      ]
     }
-  ],
+  },
+
+  // Active users slice (filtered by current tenant)
+  users: [],
 
   sessions: [
     {
@@ -192,14 +182,35 @@ const adminState = {
 
 // Initialize Admin UI
 document.addEventListener('DOMContentLoaded', () => {
+  switchAdminTenant(adminState.currentTenant || 'infrapilot');
   renderOverviewLogins();
   renderOverviewActivities();
-  renderUsersTable();
   renderSessionsTable();
   renderLoginsTable();
   renderFullActivitiesTimeline();
   updateHeaderNodeIp();
 });
+
+// Organization / Tenant Switcher for Admin Portal
+window.switchAdminTenant = function(tenantSlug) {
+  adminState.currentTenant = tenantSlug;
+  const t = adminState.tenants[tenantSlug] || adminState.tenants['infrapilot'];
+  adminState.users = [...t.users];
+
+  // Update Admin Header Profile to match the active tenant's Root Super Admin
+  const adminNameEl = document.querySelector('.admin-name');
+  const adminRoleEl = document.querySelector('.admin-role');
+  const adminAvatarEl = document.querySelector('.admin-avatar');
+  if (adminNameEl && t.rootAdmin) adminNameEl.textContent = t.rootAdmin.name;
+  if (adminRoleEl && t.rootAdmin) adminRoleEl.textContent = t.rootAdmin.role;
+  if (adminAvatarEl && t.rootAdmin) adminAvatarEl.textContent = t.rootAdmin.avatar;
+
+  // Update total users counter in stats
+  const statUsers = document.getElementById('stat-total-users');
+  if (statUsers) statUsers.textContent = adminState.users.length;
+
+  renderUsersTable();
+};
 
 function updateHeaderNodeIp() {
   const ipEl = document.getElementById('server-host-ip');
