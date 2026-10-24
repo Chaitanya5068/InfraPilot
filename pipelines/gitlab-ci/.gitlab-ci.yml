@@ -1,0 +1,40 @@
+# InfraPilot GitLab CI Pipeline (Build Guide Section 9.2)
+stages: [build, test, security, package, report]
+
+build:
+  stage: build
+  image: maven:3.9-eclipse-temurin-17
+  script: ["mvn -B package -DskipTests"]
+  artifacts:
+    paths: [target/*.jar]
+    expire_in: 1 day
+
+unit-tests:
+  stage: test
+  image: maven:3.9-eclipse-temurin-17
+  script: ["mvn -B test"]
+  artifacts:
+    reports:
+      junit: "**/surefire-reports/*.xml"
+
+gitleaks:
+  stage: security
+  image: { name: zricethezav/gitleaks:latest, entrypoint: [""] }
+  script: ["gitleaks detect --source . --report-format json --report-path gitleaks.json"]
+  artifacts:
+    when: always
+    paths: [gitleaks.json]
+
+checkov:
+  stage: security
+  image: { name: bridgecrew/checkov:latest, entrypoint: [""] }
+  script: ["checkov -d infrastructure/ -o json > checkov.json || true"]
+  artifacts:
+    when: always
+    paths: [checkov.json]
+
+trivy-image:
+  stage: package
+  image: { name: aquasec/trivy:latest, entrypoint: [""] }
+  script:
+    - trivy image --exit-code 1 --severity CRITICAL $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA

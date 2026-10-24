@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: InfraPilot Control Plane REST API
+  description: Enterprise API for Git repository onboarding, multi-cloud pipeline orchestration, automated security scanners, and cost governance.
+  version: 2.1.0
+servers:
+  - url: http://localhost:8085/api/v1
+    description: Local API Service
+paths:
+  /auth/login:
+    post:
+      summary: User Authentication
+      description: Returns JWT access token (15m) and refresh token (7d)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Invalid credentials
+
+  /projects:
+    get:
+      summary: List all projects
+      responses:
+        '200':
+          description: List of onboarding projects
+    post:
+      summary: Onboard repository and analyze stack
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repoUrl: { type: string }
+                branch: { type: string }
+                isDemo: { type: boolean }
+      responses:
+        '200':
+          description: Project created with readiness report
+
+  /runs:
+    get:
+      summary: List recent pipeline runs
+      responses:
+        '200':
+          description: Runs history
+    post:
+      summary: Trigger new deployment run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId: { type: string, format: uuid }
+                environment: { type: string }
+                ciSystem: { type: string }
+      responses:
+        '200':
+          description: Run queued and dispatched
+
+  /runs/{id}/approve:
+    post:
+      summary: DevOps approval for Terraform Apply
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Run approved
+
+  /runs/{id}/destroy:
+    post:
+      summary: Trigger Terraform Destroy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Infrastructure teardown started
+
+  /callbacks/stage:
+    post:
+      summary: Pipeline stage execution callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                runId: { type: string, format: uuid }
+                stage: { type: string }
+                status: { type: string }
+                durationSec: { type: integer }
+      responses:
+        '200':
+          description: Stage recorded
+
+  /health:
+    get:
+      summary: Service Health Check
+      responses:
+        '200':
+          description: Status UP

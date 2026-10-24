@@ -1,0 +1,23 @@
+---
+- name: Deploy Node Exporter Container
+  community.docker.docker_container:
+    name: node-exporter
+    image: prom/node-exporter:v1.7.0
+    state: started
+    restart_policy: always
+    published_ports:
+      - "9100:9100"
+
+- name: Deploy cAdvisor Container
+  community.docker.docker_container:
+    name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    state: started
+    restart_policy: always
+    published_ports:
+      - "8082:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro

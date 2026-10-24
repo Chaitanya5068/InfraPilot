@@ -1,0 +1,29 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "title": "Total Pipeline Runs by Status",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum by(status) (infrapilot_runs_total)", "legendFormat": "{{status}}" }
+      ]
+    },
+    {
+      "title": "Stage Duration Execution Time (Seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "infrapilot_stage_duration_seconds_sum / infrapilot_stage_duration_seconds_count", "legendFormat": "{{stage}}" }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["infrapilot", "pipeline"],
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "3. Pipeline and Quality",
+  "uid": "pipeline-quality"
+}

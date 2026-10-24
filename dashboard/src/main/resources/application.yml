@@ -1,0 +1,16 @@
+server:
+  port: ${DASHBOARD_PORT:8080}
+
+spring:
+  application:
+    name: infrapilot-dashboard
+
+vaadin:
+  launch-browser: false
+  whitelisted-packages: com.infrapilot.ui
+
+infrapilot:
+  api:
+    url: ${INFRAPILOT_API:http://localhost:8085}
+  grafana:
+    url: ${GRAFANA_URL:http://localhost:3000}

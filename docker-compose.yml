@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: infrapilot-postgres
+    environment:
+      POSTGRES_DB: infrapilot
+      POSTGRES_USER: infrapilot
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-InfraPilot_SecurePassword_2026!}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infrapilot"]
+      interval: 10s
+      retries: 5
+    networks:
+      - infrapilot-net
+
+  infrapilot-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: infrapilot-api
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/infrapilot
+      POSTGRES_USER: infrapilot
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-InfraPilot_SecurePassword_2026!}
+      INFRAPILOT_API_PORT: 8085
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - infrapilot-net
+
+  infrapilot-dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: infrapilot-dashboard
+    environment:
+      DASHBOARD_PORT: 8080
+      INFRAPILOT_API: http://infrapilot-api:8085
+      GRAFANA_URL: http://grafana:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - infrapilot-api
+    networks:
+      - infrapilot-net
+
+  demo-app:
+    build:
+      context: ./demo-app
+      dockerfile: Dockerfile
+    container_name: infrapilot-demo-app
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/infrapilot
+      DB_PASSWORD: ${DB_PASSWORD:-InfraPilot_SecurePassword_2026!}
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - infrapilot-net
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: infrapilot-prometheus
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - infrapilot-net
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: infrapilot-grafana
+    environment:
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    networks:
+      - infrapilot-net
+
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: infrapilot-node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - infrapilot-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: infrapilot-cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8082:8080"
+    networks:
+      - infrapilot-net
+
+  jenkins:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: infrapilot-jenkins
+    ports:
+      - "8090:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - infrapilot-net
+
+  sonarqube:
+    image: sonarqube:10-community
+    container_name: infrapilot-sonarqube
+    ports:
+      - "9000:9000"
+    networks:
+      - infrapilot-net
+
+volumes:
+  jenkins_home:
+
+networks:
+  infrapilot-net:
+    driver: bridge

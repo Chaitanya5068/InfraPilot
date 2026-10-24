@@ -1,0 +1,29 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "title": "Security Findings Count by Tool & Severity",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum by(tool, severity) (infrapilot_scan_findings_total)", "legendFormat": "{{tool}} - {{severity}}" }
+      ]
+    },
+    {
+      "title": "Estimated Monthly Cloud Cost (USD)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "max(infrapilot_cost_estimate_usd)", "legendFormat": "Estimated Monthly ($)" }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["infrapilot", "security", "finops"],
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "4. Security and Cost",
+  "uid": "security-cost"
+}

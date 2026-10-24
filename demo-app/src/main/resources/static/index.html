@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker — InfraPilot Demo Application</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <span>⚡ TaskTracker</span>
+            <span class="brand-badge">InfraPilot Demo v2.1</span>
+        </div>
+        <div class="user-nav">
+            <div class="health-indicator">
+                <span class="health-dot"></span>
+                <span>API Health: 200 OK</span>
+            </div>
+            <a href="/login.html" class="btn btn-secondary" style="text-decoration: none; font-size: 0.85rem;">Account</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero">
+            <div class="hero-title">
+                <h1>Active Development Tasks</h1>
+                <p>PostgreSQL-backed CRUD with Prometheus Micrometer metrics</p>
+            </div>
+            <div class="controls">
+                <select id="statusFilter" class="filter-select" onchange="filterTasks()">
+                    <option value="">All Statuses</option>
+                    <option value="TODO">To Do</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="DONE">Completed</option>
+                </select>
+                <button class="btn" onclick="openCreateModal()">+ Create Task</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Tasks</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">In Progress</div>
+                <div class="stat-value" style="color: var(--accent-blue);" id="statInProgress">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value" style="color: var(--accent-green);" id="statDone">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">High Priority</div>
+                <div class="stat-value" style="color: var(--accent-red);" id="statHigh">0</div>
+            </div>
+        </div>
+
+        <div id="tasksGrid" class="tasks-grid">
+            <!-- Dynamic task cards will be rendered here -->
+        </div>
+    </main>
+
+    <!-- Create/Edit Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="margin-bottom: 1.5rem;">Create New Task</h2>
+            <form id="taskForm" onsubmit="handleTaskSubmit(event)">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label for="taskTitleInput">Title</label>
+                    <input type="text" id="taskTitleInput" class="form-control" placeholder="e.g. Write Prometheus alert rules" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescInput">Description</label>
+                    <textarea id="taskDescInput" class="form-control" rows="3" placeholder="Describe the task acceptance criteria..."></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="taskStatusInput">Status</label>
+                        <select id="taskStatusInput" class="form-control">
+                            <option value="TODO">To Do</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="DONE">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriorityInput">Priority</label>
+                        <select id="taskPriorityInput" class="form-control">
+                            <option value="LOW">Low</option>
+                            <option value="MEDIUM" selected>Medium</option>
+                            <option value="HIGH">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

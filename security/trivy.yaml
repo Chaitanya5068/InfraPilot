@@ -1,0 +1,16 @@
+# Trivy Scanner Configuration (Guide Section 10)
+scan:
+  security-checks:
+    - vuln
+    - config
+    - secret
+
+severity:
+  - CRITICAL
+  - HIGH
+  - MEDIUM
+
+exit-code: 1
+
+vulnerability:
+  ignore-unfixed: false

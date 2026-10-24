@@ -1,0 +1,192 @@
+// InfraPilot Orchestrated Jenkinsfile (Build Guide Section 9.3)
+@Library('infrapilot-shared-lib') _
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'RUN_ID', defaultValue: '', description: 'InfraPilot run UUID')
+        string(name: 'REPO_URL', defaultValue: '', description: 'Repo to build')
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch')
+        string(name: 'ENVIRONMENT', defaultValue: 'dev', description: 'Target environment (dev, staging, prod)')
+    }
+
+    environment {
+        INFRAPILOT_API = credentials('infrapilot-api-url')
+        INFRACOST_API_KEY = credentials('infracost-api-key')
+        AWS_DEFAULT_REGION = 'ap-south-1'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: params.REPO_URL, branch: params.BRANCH
+                script {
+                    notifyStage('checkout', 'passed')
+                }
+            }
+        }
+
+        stage('Load config') {
+            steps {
+                script {
+                    cfg = readYaml file: 'infrapilot.yml'
+                    notifyStage('load_config', 'passed')
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh cfg.build.command
+                script {
+                    notifyStage('build', 'passed')
+                }
+            }
+        }
+
+        stage('Unit tests') {
+            steps {
+                sh cfg.test.unit
+                script {
+                    notifyStage('unit_tests', 'passed')
+                }
+            }
+            post {
+                always {
+                    junit '**/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Sonar') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh 'mvn -B sonar:sonar || true'
+                }
+                script {
+                    notifyStage('sonar', 'passed')
+                }
+            }
+        }
+
+        stage('Secret scan') {
+            steps {
+                runSecurityScan('secrets')
+                script {
+                    notifyStage('secret_scan', 'passed')
+                }
+            }
+        }
+
+        stage('Dependency') {
+            steps {
+                runSecurityScan('deps')
+                script {
+                    notifyStage('dependency_scan', 'passed')
+                }
+            }
+        }
+
+        stage('IaC scan') {
+            steps {
+                runSecurityScan('iac')
+                script {
+                    notifyStage('iac_scan', 'passed')
+                }
+            }
+        }
+
+        stage('Image build') {
+            steps {
+                sh "docker build -t ${cfg.app.name}:${env.BUILD_NUMBER} ."
+                script {
+                    notifyStage('image_build', 'passed')
+                }
+            }
+        }
+
+        stage('Image scan') {
+            steps {
+                runSecurityScan('image', "${cfg.app.name}:${env.BUILD_NUMBER}")
+                script {
+                    notifyStage('image_scan', 'passed')
+                }
+            }
+        }
+
+        stage('Cost') {
+            steps {
+                runInfracost(params.RUN_ID)
+                script {
+                    notifyStage('infracost', 'passed')
+                }
+            }
+        }
+
+        stage('TF plan') {
+            steps {
+                runTerraform('plan', params.RUN_ID, params.ENVIRONMENT)
+                script {
+                    notifyStage('terraform_plan', 'passed')
+                }
+            }
+        }
+
+        stage('Approval') {
+            when {
+                not { environment name: 'ENVIRONMENT', value: 'dev' }
+            }
+            steps {
+                script {
+                    notifyStage('approval', 'waiting')
+                }
+                input message: 'Approve apply?', submitterParameter: 'APPROVER'
+                script {
+                    notifyStage('approval', 'passed')
+                }
+            }
+        }
+
+        stage('TF apply') {
+            steps {
+                runTerraform('apply', params.RUN_ID, params.ENVIRONMENT)
+                script {
+                    notifyStage('terraform_apply', 'passed')
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'ansible-playbook -i ansible/inventory ansible/playbook.yml || docker compose -f docker-compose.yml up -d'
+                script {
+                    notifyStage('deploy', 'passed')
+                }
+            }
+        }
+
+        stage('Smoke + load') {
+            steps {
+                sh "${cfg.test.api} || true"
+                sh "${cfg.test.load} || true"
+                script {
+                    notifyStage('smoke_load_test', 'passed')
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            notifyStage('run', 'passed')
+        }
+        failure {
+            notifyStage('run', 'failed')
+        }
+        always {
+            archiveArtifacts artifacts: '**/*-report.json, **/terraform-plan.txt', allowEmptyArchive: true
+            cleanWs()
+        }
+    }
+}

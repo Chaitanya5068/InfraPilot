@@ -1,0 +1,12 @@
+---
+- name: Install Docker prerequisites
+  ansible.builtin.package:
+    name:
+      - docker
+    state: present
+
+- name: Start and enable Docker daemon
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

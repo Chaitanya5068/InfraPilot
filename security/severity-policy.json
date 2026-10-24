@@ -1,0 +1,50 @@
+{
+  "version": "2.1",
+  "policyName": "InfraPilot Enterprise Quality and Security Gate Policy",
+  "rules": [
+    {
+      "severity": "CRITICAL",
+      "action": "HALT_PIPELINE",
+      "deployAllowed": false,
+      "requiresManualAcknowledgment": false,
+      "examples": [
+        "Hardcoded AWS access key or secret",
+        "CVE with CVSS score 9.0+ in runtime dependencies or base image",
+        "Public S3 bucket with unauthenticated write access",
+        "Wildcard IAM policy (*:* action)"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "action": "REQUIRE_DEVOPS_ACKNOWLEDGMENT",
+      "deployAllowed": true,
+      "requiresManualAcknowledgment": true,
+      "examples": [
+        "Overly open security group (0.0.0.0/0 on port 22 or 3000)",
+        "HIGH CVE with available vendor fix in base container image",
+        "Missing IMDSv2 requirement on EC2 instances"
+      ]
+    },
+    {
+      "severity": "MEDIUM",
+      "action": "LOG_AND_DISPLAY",
+      "deployAllowed": true,
+      "requiresManualAcknowledgment": false,
+      "examples": [
+        "Unused security group rule",
+        "Medium CVE without known exploit vectors",
+        "Missing automated volume snapshot retention tags"
+      ]
+    },
+    {
+      "severity": "LOW_OR_INFO",
+      "action": "INFORMATIONAL",
+      "deployAllowed": true,
+      "requiresManualAcknowledgment": false,
+      "examples": [
+        "Checkstyle or formatting deviations",
+        "Minor code smells or missing Javadoc comments"
+      ]
+    }
+  ]
+}

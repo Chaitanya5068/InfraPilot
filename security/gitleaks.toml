@@ -1,0 +1,12 @@
+# InfraPilot Gitleaks Configuration (Guide Section 12)
+title = "InfraPilot gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Ignore test fixtures and documentation samples"
+paths = [
+    '''tests/fixtures/.*''',
+    '''docs/.*'''
+]

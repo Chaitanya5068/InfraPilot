@@ -1,0 +1,8 @@
+# Checkov IaC Scanner Configuration (Guide Section 10)
+framework:
+  - terraform
+soft-fail: false
+compact: true
+output: json
+download-external-modules: true
+evaluate-variables: true

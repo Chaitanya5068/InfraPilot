@@ -1,0 +1,27 @@
+# infrapilot.yml (demo-app replaceable contract)
+version: 1
+app:
+  name: demo-app
+  type: fullstack # fullstack | backend | frontend
+  port: 8080 # port exposed by the main container
+  health_path: /actuator/health
+  metrics_path: /actuator/prometheus # optional; enables app-level Grafana panels
+build:
+  command: ./mvnw -B package -DskipTests
+  dockerfile: ./Dockerfile
+test:
+  unit: ./mvnw -B test
+  api: newman run tests/postman/collection.json --env-var baseUrl={{APP_URL}}
+  load: k6 run tests/k6/smoke.js
+deploy:
+  target: aws-ec2 # aws-ec2 now; aws-ecs later
+  compose_file: docker-compose.yml
+  env: # non-secret values only
+    SPRING_PROFILES_ACTIVE: prod
+  secrets: # names only; values live in GitHub/Jenkins/AWS Secrets Manager
+    - DB_PASSWORD
+thresholds:
+  max_critical_vulns: 0
+  max_high_vulns: 5
+  min_coverage_percent: 60
+  p95_latency_ms: 500

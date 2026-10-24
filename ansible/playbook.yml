@@ -1,0 +1,21 @@
+---
+# InfraPilot Host Configuration Playbook (Guide Section 5 & 11)
+- name: Configure InfraPilot EC2 Host and Deploy Application Stack
+  hosts: app_servers
+  become: true
+  roles:
+    - docker
+    - monitoring-agents
+
+  tasks:
+    - name: Ensure app workspace directory exists
+      ansible.builtin.file:
+        path: /opt/infrapilot/app
+        state: directory
+        mode: '0755'
+
+    - name: Start Application Compose Stack
+      community.docker.docker_compose_v2:
+        project_src: /opt/infrapilot/app
+        state: present
+      ignore_errors: true
