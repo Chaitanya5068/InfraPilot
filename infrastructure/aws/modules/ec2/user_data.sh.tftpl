@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+
+dnf install -y docker
+systemctl enable --now docker
+cat >/etc/docker/daemon.json <<'DOCKER_CONFIG'
+{"log-driver":"awslogs","log-opts":{"awslogs-region":"${aws_region}","awslogs-group":"${cloudwatch_log_group}","awslogs-stream":"application"}}
+DOCKER_CONFIG
+systemctl restart docker
+aws ecr get-login-password --region ${aws_region} \
+  | docker login --username AWS --password-stdin "$(echo '${app_image}' | cut -d/ -f1)"
+docker pull '${app_image}'
+docker run --detach --restart always --name infrapilot \
+  --publish ${app_port}:${app_port} \
+  --env SERVER_PORT=${app_port} \
+  '${app_image}'

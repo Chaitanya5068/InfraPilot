@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfraPilot — Multi-Cloud DevOps & SRE Platform</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ====== LOGIN PAGE ====== -->
+  <div class="login-page" id="login-page">
+    <div class="login-ambient-orb login-orb-1"></div>
+    <div class="login-ambient-orb login-orb-2"></div>
+    <div class="login-ambient-orb login-orb-3"></div>
+
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logo-badge">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/><polyline points="2 15.5 12 8.5 22 15.5"/><line x1="12" y1="2" x2="12" y2="8.5"/></svg>
+          </div>
+          <h1 class="login-brand">InfraPilot</h1>
+          <p class="login-subtitle">Multi-Cloud DevSecOps & SRE Platform</p>
+        </div>
+
+        <form id="login-form" class="login-form">
+          <div class="login-field">
+            <label for="login-email">Email or Username</label>
+            <div class="login-input-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="login-email" placeholder="chaitanya@infrapilot.dev" value="chaitanya@infrapilot.dev" required autocomplete="username" />
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="login-password">Password</label>
+            <div class="login-input-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="login-password" placeholder="••••••••" value="admin123" required autocomplete="current-password" />
+              <button type="button" class="login-eye-btn" id="toggle-password" title="Show password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="login-options">
+            <label class="login-checkbox">
+              <input type="checkbox" id="login-remember" checked />
+              <span class="checkmark"></span>
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="login-forgot">Forgot password?</a>
+          </div>
+          <button type="submit" class="login-submit-btn" id="login-submit-btn">
+            <span class="login-btn-text">Sign In</span>
+            <div class="login-spinner" id="login-spinner"></div>
+          </button>
+          <div class="login-error" id="login-error"></div>
+        </form>
+
+        <div class="login-divider"><span>or continue with</span></div>
+        <div class="login-social-row">
+          <button type="button" class="login-social-btn" onclick="socialLogin('github')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub SSO
+          </button>
+          <button type="button" class="login-social-btn" onclick="socialLogin('google')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+        </div>
+
+        <div class="login-footer">
+          <p>Secured with <strong>OAuth 2.0 + MFA</strong></p>
+          <p class="login-version">InfraPilot v2.4.1 · Enterprise</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== MAIN APP (hidden until login) ====== -->
+  <div id="app-shell" class="app-shell" style="display:none;">
+
+  <!-- Ambient background orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/><polyline points="2 15.5 12 8.5 22 15.5"/><line x1="12" y1="2" x2="12" y2="8.5"/></svg>
+      </div>
+      <div class="logo-text">
+        <h1>InfraPilot</h1>
+        <div class="logo-tagline">DevSecOps & SRE Platform</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search deployments, services, logs…" />
+      </div>
+    </div>
+
+    <div class="header-status">
+      <button class="header-icon-btn" title="Notifications">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="status-pill" id="backend-status-indicator">
+        <span class="pulse-dot"></span> InfraPilot: Ready
+      </div>
+      <div class="status-pill">
+        <span>Cloud: <strong>AWS ap-south-1</strong></span>
+      </div>
+      <div class="user-badge" id="user-badge-toggle" onclick="toggleUserPanel()" style="cursor:pointer;">
+        <div class="avatar">
+          <span>C</span>
+          <span class="avatar-status-dot"></span>
+        </div>
+        <div class="user-meta">
+          <div class="name">Chaitanya</div>
+          <span class="role-tag">DEVOPS LEAD</span>
+        </div>
+        <svg class="user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+
+      <!-- User Profile Dropdown Panel -->
+      <div class="user-panel" id="user-panel">
+        <div class="up-header">
+          <div class="up-avatar">
+            <span>C</span>
+            <span class="up-avatar-status"></span>
+          </div>
+          <div class="up-user-info">
+            <div class="up-name">Chaitanya</div>
+            <div class="up-email" id="up-email">chaitanya@infrapilot.dev</div>
+            <span class="up-role-badge">DEVOPS LEAD</span>
+          </div>
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- Session Details -->
+        <div class="up-section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Current Session
+        </div>
+        <div class="up-details">
+          <div class="up-detail-row">
+            <span class="up-detail-label">Session ID</span>
+            <span class="up-detail-value" id="up-session-id">sess-a7b2c9e1</span>
+          </div>
+          <div class="up-detail-row">
+            <span class="up-detail-label">Logged in</span>
+            <span class="up-detail-value" id="up-login-time">—</span>
+          </div>
+          <div class="up-detail-row">
+            <span class="up-detail-label">Duration</span>
+            <span class="up-detail-value" id="up-session-duration">—</span>
+          </div>
+          <div class="up-detail-row">
+            <span class="up-detail-label">IP Address</span>
+            <span class="up-detail-value">127.0.0.1</span>
+          </div>
+          <div class="up-detail-row">
+            <span class="up-detail-label">Browser</span>
+            <span class="up-detail-value" id="up-browser">—</span>
+          </div>
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- Login History -->
+        <div class="up-section-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Recent Login History
+        </div>
+        <div class="up-history" id="up-history">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="up-divider"></div>
+
+        <!-- Actions -->
+        <div class="up-actions">
+          <button class="up-action-btn" onclick="switchView('audit'); closeUserPanel();">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Security Settings
+          </button>
+          <button class="up-action-btn up-logout-btn" onclick="logoutUser()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-section-label">MAIN</div>
+      <a class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="deploy">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </span>
+        <span>Deploy Wizard</span>
+      </a>
+      <a class="nav-item" data-view="pipelines">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+        </span>
+        <span>Pipelines & Logs</span>
+      </a>
+
+      <div class="sidebar-section-label">GOVERNANCE</div>
+      <a class="nav-item" data-view="security">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <span>Security & Scans</span>
+      </a>
+      <a class="nav-item" data-view="cost">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        <span>FinOps & Costs</span>
+      </a>
+      <a class="nav-item" data-view="monitoring">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
+        <span>Observability & SLOs</span>
+      </a>
+      <a class="nav-item" data-view="audit">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+        <span>Audit Trail</span>
+      </a>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-section-label">TEAM</div>
+        <div class="team-online-strip">
+          <div class="team-avatar ta-green" title="Chaitanya (You)">C</div>
+          <div class="team-avatar ta-blue" title="Priya – reviewing PR">P</div>
+          <div class="team-avatar ta-purple" title="Arjun – deploying">A</div>
+          <div class="team-avatar ta-amber" title="Sneha – idle">S</div>
+          <span class="team-count">4 online</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Views -->
+    <main class="main-content">
+
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view-section active-view">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Platform Overview</h2>
+            <p>Real-time infrastructure status, DORA metrics, and cloud workloads.</p>
+          </div>
+          <div class="view-header-actions">
+            <button class="btn btn-ghost" onclick="location.reload()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Refresh
+            </button>
+            <button class="btn btn-primary" onclick="switchView('deploy')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Deployment
+            </button>
+          </div>
+        </div>
+
+        <!-- Dashboard 2-Column Layout: Stats+Table (left) + Activity Panel (right) -->
+        <div class="dashboard-layout">
+
+          <!-- LEFT COLUMN: KPIs + Table -->
+          <div class="dashboard-main">
+            <!-- 4 KPI Stat Cards -->
+            <div class="stats-grid">
+              <div class="stat-card stat-card--deployments">
+                <div class="stat-icon-wrap stat-icon--indigo">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Active Deployments</div>
+                  <div class="stat-value">3</div>
+                  <div class="stat-sub positive">● All healthy in ap-south-1</div>
+                </div>
+                <div class="stat-sparkline" id="spark-deployments"></div>
+              </div>
+              <div class="stat-card stat-card--dora">
+                <div class="stat-icon-wrap stat-icon--cyan">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">DORA Lead Time</div>
+                  <div class="stat-value">4.2 min</div>
+                  <div class="stat-sub positive">↓ 18% from last week</div>
+                </div>
+                <div class="stat-sparkline" id="spark-dora"></div>
+              </div>
+              <div class="stat-card stat-card--security">
+                <div class="stat-icon-wrap stat-icon--green">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Security Gate Pass Rate</div>
+                  <div class="stat-value">100%</div>
+                  <div class="stat-sub positive">Gitleaks + Checkov compliant</div>
+                </div>
+                <div class="stat-sparkline" id="spark-security"></div>
+              </div>
+              <div class="stat-card stat-card--cost">
+                <div class="stat-icon-wrap stat-icon--amber">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="stat-content">
+                  <div class="stat-label">Estimated Monthly Spend</div>
+                  <div class="stat-value">$196.70</div>
+                  <div class="stat-sub warning">Infracost tracked per workspace</div>
+                </div>
+                <div class="stat-sparkline" id="spark-cost"></div>
+              </div>
+            </div>
+
+            <!-- Deployments Table -->
+            <div class="card">
+              <div class="card-title">
+                <span>Recent Workloads & Environments</span>
+                <span class="badge badge-info">Multi-Tenant Isolated</span>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Project / ID</th>
+                    <th>Status</th>
+                    <th>Environment</th>
+                    <th>Provider & Region</th>
+                    <th>Monthly Cost</th>
+                    <th>Live Endpoint</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="deployments-tbody">
+                  <!-- Dynamically rendered by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Developer Activity Monitor -->
+          <aside class="activity-panel">
+            <div class="activity-panel-header">
+              <div class="activity-panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Team Activity</span>
+              </div>
+              <span class="live-badge">
+                <span class="live-dot"></span> LIVE
+              </span>
+            </div>
+
+            <!-- Team Members Status -->
+            <div class="team-status-list">
+              <div class="team-member-row">
+                <div class="tm-avatar tm-online" style="background: linear-gradient(135deg, #6366F1, #8B5CF6);">P</div>
+                <div class="tm-info">
+                  <div class="tm-name">Priya Sharma</div>
+                  <div class="tm-role">Sr. Backend Engineer</div>
+                </div>
+                <span class="tm-status-tag tm-coding">Coding</span>
+              </div>
+              <div class="team-member-row">
+                <div class="tm-avatar tm-online" style="background: linear-gradient(135deg, #3B82F6, #06B6D4);">A</div>
+                <div class="tm-info">
+                  <div class="tm-name">Arjun Patel</div>
+                  <div class="tm-role">DevOps Engineer</div>
+                </div>
+                <span class="tm-status-tag tm-deploying">Deploying</span>
+              </div>
+              <div class="team-member-row">
+                <div class="tm-avatar tm-online" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">S</div>
+                <div class="tm-info">
+                  <div class="tm-name">Sneha Rao</div>
+                  <div class="tm-role">Frontend Developer</div>
+                </div>
+                <span class="tm-status-tag tm-reviewing">Reviewing</span>
+              </div>
+              <div class="team-member-row">
+                <div class="tm-avatar tm-away" style="background: linear-gradient(135deg, #6B7280, #9CA3AF);">R</div>
+                <div class="tm-info">
+                  <div class="tm-name">Ravi Kumar</div>
+                  <div class="tm-role">SRE Engineer</div>
+                </div>
+                <span class="tm-status-tag tm-idle">Away</span>
+              </div>
+            </div>
+
+            <div class="activity-divider"></div>
+
+            <!-- Live Activity Feed -->
+            <div class="activity-feed-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span>Live Activity Feed</span>
+            </div>
+            <div class="activity-feed" id="activity-feed">
+              <!-- Populated by JS -->
+            </div>
+
+            <div class="activity-divider"></div>
+
+            <!-- Contribution Heatmap -->
+            <div class="activity-feed-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              <span>Today's Commits</span>
+            </div>
+            <div class="commit-heatmap" id="commit-heatmap">
+              <!-- Populated by JS -->
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- 2. DEPLOY WIZARD VIEW -->
+      <section id="view-deploy" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Self-Service Deployment Wizard</h2>
+            <p>Deploy application code to automated AWS Terraform infrastructure in 1 click.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <form id="deploy-form">
+            <h3 style="font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-cyan);">Step 1: Project & Target Environment</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="deploy-project">Project Name</label>
+                <input type="text" id="deploy-project" class="form-control" placeholder="e.g. user-auth-service" required value="payment-engine">
+              </div>
+              <div class="form-group">
+                <label for="deploy-provider">Cloud Provider</label>
+                <select id="deploy-provider" class="form-control">
+                  <option value="AWS">Amazon Web Services (AWS)</option>
+                  <option value="Azure" disabled>Microsoft Azure (Phase 5)</option>
+                  <option value="GCP" disabled>Google Cloud Platform (Phase 6)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="deploy-env">Environment</label>
+                <select id="deploy-env" class="form-control">
+                  <option value="dev">Development (dev)</option>
+                  <option value="staging">Staging (staging)</option>
+                  <option value="prod">Production (prod)</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin: 24px 0 20px 0; color: var(--accent-cyan);">Step 2: Architecture Template & Source Code</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="deploy-template">Architecture Template</label>
+                <select id="deploy-template" class="form-control">
+                  <option value="fullstack-standard">Fullstack Standard (VPC + EC2 + RDS + ALB)</option>
+                  <option value="container-standard">Container Standard (VPC + ECS + RDS + ECR)</option>
+                  <option value="serverless-basic">Serverless Basic (Lambda + API GW)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="deploy-repo">GitHub Repository URL</label>
+                <input type="text" id="deploy-repo" class="form-control" placeholder="https://github.com/org/repo" required value="https://github.com/infrapilot/sample-app">
+              </div>
+              <div class="form-group">
+                <label for="deploy-branch">Branch</label>
+                <input type="text" id="deploy-branch" class="form-control" value="main" required>
+              </div>
+            </div>
+
+            <!-- Infracost Preview Banner -->
+            <div class="cost-preview-banner">
+              <div>
+                <strong style="color: #fff;">Infracost Real-time Estimate</strong>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Pre-deployment cost breakdown calculated based on template specifications.</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1.4rem; font-weight: 700; color: #34D399;" id="cost-estimate-preview">$23.40 / month</div>
+                <small style="color: var(--text-dim);">No AWS bill incurred until approved</small>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; justify-content: flex-end;">
+              <button type="button" class="btn btn-secondary" onclick="switchView('dashboard')">Cancel</button>
+              <button type="submit" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                Submit & Trigger Pipeline
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 3. PIPELINES VIEW -->
+      <section id="view-pipelines" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>CI/CD Automation Pipeline</h2>
+            <p>11-Stage Automated DevSecOps, FinOps, and Terraform Workflow.</p>
+          </div>
+        </div>
+
+        <!-- Animated 9-Step Stepper -->
+        <div class="stepper-container">
+          <div class="step-item" id="step-1">
+            <div class="step-node">1</div>
+            <div class="step-label">Checkout</div>
+          </div>
+          <div class="step-item" id="step-2">
+            <div class="step-node">2</div>
+            <div class="step-label">Tests</div>
+          </div>
+          <div class="step-item" id="step-3">
+            <div class="step-node">3</div>
+            <div class="step-label">Gitleaks</div>
+          </div>
+          <div class="step-item" id="step-4">
+            <div class="step-node">4</div>
+            <div class="step-label">Checkov</div>
+          </div>
+          <div class="step-item" id="step-5">
+            <div class="step-node">5</div>
+            <div class="step-label">Infracost</div>
+          </div>
+          <div class="step-item" id="step-6">
+            <div class="step-node">6</div>
+            <div class="step-label">TF Plan</div>
+          </div>
+          <div class="step-item" id="step-7">
+            <div class="step-node">7</div>
+            <div class="step-label">Approval Gate</div>
+          </div>
+          <div class="step-item" id="step-8">
+            <div class="step-node">8</div>
+            <div class="step-label">TF Apply</div>
+          </div>
+          <div class="step-item" id="step-9">
+            <div class="step-node">9</div>
+            <div class="step-label">Smoke Tests</div>
+          </div>
+        </div>
+
+        <!-- Real-Time Terminal Logs -->
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <div class="terminal-title">infra-pipeline-runner.log — Live Output Stream</div>
+          </div>
+          <div class="terminal-body" id="pipeline-terminal">
+            <div class="log-line"><span class="log-time">[SYSTEM]</span> <span class="log-info">Ready. Submit a deployment from the Deploy Wizard to run live pipeline.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. SECURITY & SCANS VIEW -->
+      <section id="view-security" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>GitHub Repository DevSecOps & Security Scanner</h2>
+            <p>Comprehensive security audit across 5 dimensions: Secret Scanning (Gitleaks), Cloud & IaC Misconfigurations (Checkov), Dependency CVEs (Trivy), SAST Code Flaws (Semgrep), and GitHub Posture (Scorecard).</p>
+          </div>
+          <div class="view-header-actions" style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="exportSecurityReport('sarif')" title="Export OASIS SARIF 2.1.0 format">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export SARIF 2.1
+            </button>
+            <button class="btn btn-secondary" onclick="exportSecurityReport('json')">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              JSON Audit
+            </button>
+          </div>
+        </div>
+
+        <!-- Scanner Configuration & Action Card -->
+        <div class="card gh-scanner-card">
+          <div class="gh-scanner-header">
+            <div class="gh-scanner-brand">
+              <div class="gh-scanner-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              </div>
+              <div>
+                <h3 style="font-size: 1.1rem; color: var(--text-main); margin-bottom: 2px;">Repository Security Analysis Engine</h3>
+                <p style="font-size: 0.82rem; color: var(--text-dim);">Inspect any GitHub repository commit, branch, or pull request for security vulnerabilities.</p>
+              </div>
+            </div>
+            <div class="gh-scan-presets">
+              <span class="gh-preset-label">Quick Repos:</span>
+              <button type="button" class="gh-preset-btn" onclick="selectDemoRepo('InfraPilot/ecommerce-core')">ecommerce-core</button>
+              <button type="button" class="gh-preset-btn" onclick="selectDemoRepo('InfraPilot/payment-gateway')">payment-gateway</button>
+              <button type="button" class="gh-preset-btn active" onclick="selectDemoRepo('InfraPilot/InfraPilot')">InfraPilot</button>
+            </div>
+          </div>
+
+          <div class="gh-scan-form-row">
+            <div class="gh-input-group flex-2">
+              <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> GitHub Repository URL / Path</label>
+              <input type="text" id="gh-repo-url" class="form-control" value="https://github.com/InfraPilot/InfraPilot" placeholder="https://github.com/owner/repository" />
+            </div>
+
+            <div class="gh-input-group flex-1">
+              <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg> Branch / Ref</label>
+              <select id="gh-repo-branch" class="form-control">
+                <option value="main" selected>main (production)</option>
+                <option value="staging">staging</option>
+                <option value="dev">dev</option>
+                <option value="pr-142">PR #142 (feature-auth)</option>
+              </select>
+            </div>
+
+            <div class="gh-input-group flex-1">
+              <label><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Scan Profile</label>
+              <select id="gh-scan-profile" class="form-control">
+                <option value="all" selected>All 5 Security Pillars</option>
+                <option value="secrets">Secret Detection (Gitleaks)</option>
+                <option value="iac">IaC Misconfigs (Checkov)</option>
+                <option value="cve">Dependencies & CVEs (Trivy)</option>
+                <option value="sast">SAST Code Security (Semgrep)</option>
+                <option value="posture">GitHub Supply Chain (Scorecard)</option>
+              </select>
+            </div>
+
+            <div class="gh-scan-btn-col">
+              <button type="button" class="btn btn-primary gh-trigger-btn" id="gh-run-scan-btn" onclick="startGithubSecurityScan()">
+                <svg class="gh-scan-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span id="gh-scan-btn-text">Run Security Scan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Scanners Indicator Pills -->
+          <div class="gh-scanner-pillars">
+            <span class="pillar-tag pillar-active"><span class="pillar-dot"></span> <strong>Gitleaks:</strong> 85+ Secret Rules</span>
+            <span class="pillar-tag pillar-active"><span class="pillar-dot"></span> <strong>Checkov:</strong> CIS & AWS Benchmarks</span>
+            <span class="pillar-tag pillar-active"><span class="pillar-dot"></span> <strong>Trivy:</strong> NVD & GitHub Advisory</span>
+            <span class="pillar-tag pillar-active"><span class="pillar-dot"></span> <strong>Semgrep:</strong> OWASP Top 10 SAST</span>
+            <span class="pillar-tag pillar-active"><span class="pillar-dot"></span> <strong>Scorecard:</strong> Branch Protection & Supply Chain</span>
+          </div>
+
+          <!-- Live Scanner Console (Shows during and after scan) -->
+          <div class="gh-scan-terminal" id="gh-scan-terminal" style="display: none;">
+            <div class="gh-terminal-header">
+              <div class="terminal-dots">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+              </div>
+              <span class="gh-terminal-title" id="gh-terminal-title">github-security-scanner-worker [Idle]</span>
+              <span class="gh-scan-elapsed" id="gh-scan-elapsed">0.0s</span>
+            </div>
+            <div class="gh-terminal-logs" id="gh-terminal-logs">
+              <!-- Animated logs appear here -->
+            </div>
+            <div class="gh-progress-bar-wrap">
+              <div class="gh-progress-bar" id="gh-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Audit Overview Metrics -->
+        <div class="gh-metrics-row">
+          <div class="card gh-score-card">
+            <div class="gh-score-circle">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="circle" id="gh-score-circle-path" stroke-dasharray="94, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <text x="18" y="20.35" class="percentage" id="gh-score-text">94</text>
+              </svg>
+            </div>
+            <div class="gh-score-info">
+              <div class="gh-score-grade" id="gh-score-grade">GRADE A</div>
+              <div class="gh-score-label">Repository Security Health</div>
+              <div class="gh-score-meta" id="gh-score-meta">148 files audited · 0 Critical blockers</div>
+            </div>
+          </div>
+
+          <div class="card gh-stat-mini critical">
+            <div class="gh-stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div class="gh-stat-number" id="gh-count-critical">0</div>
+              <div class="gh-stat-title">Critical Blockers</div>
+            </div>
+          </div>
+
+          <div class="card gh-stat-mini high">
+            <div class="gh-stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <div class="gh-stat-number" id="gh-count-high">1</div>
+              <div class="gh-stat-title">High Priority</div>
+            </div>
+          </div>
+
+          <div class="card gh-stat-mini medium">
+            <div class="gh-stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </div>
+            <div>
+              <div class="gh-stat-number" id="gh-count-medium">2</div>
+              <div class="gh-stat-title">Medium Warnings</div>
+            </div>
+          </div>
+
+          <div class="card gh-stat-mini passed">
+            <div class="gh-stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <div class="gh-stat-number" id="gh-count-passed">24</div>
+              <div class="gh-stat-title">Passed Checks</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filterable Security Findings Explorer -->
+        <div class="card">
+          <div class="findings-toolbar">
+            <div class="findings-tabs" id="findings-filter-tabs">
+              <button class="ftab-btn active" data-filter="all" onclick="filterFindings('all')">All Elements (<span id="tab-count-all">3</span>)</button>
+              <button class="ftab-btn" data-filter="secrets" onclick="filterFindings('secrets')">Secrets & Credentials (<span id="tab-count-secrets">0</span>)</button>
+              <button class="ftab-btn" data-filter="iac" onclick="filterFindings('iac')">IaC Misconfigs (<span id="tab-count-iac">2</span>)</button>
+              <button class="ftab-btn" data-filter="cve" onclick="filterFindings('cve')">CVEs & Dependencies (<span id="tab-count-cve">0</span>)</button>
+              <button class="ftab-btn" data-filter="sast" onclick="filterFindings('sast')">SAST Code Flaws (<span id="tab-count-sast">1</span>)</button>
+              <button class="ftab-btn" data-filter="posture" onclick="filterFindings('posture')">Supply Chain & Posture (<span id="tab-count-posture">0</span>)</button>
+            </div>
+            <div class="findings-search">
+              <input type="text" id="findings-search-input" placeholder="Search rules, CVEs, or files…" oninput="onSearchFindings(this.value)" />
+            </div>
+          </div>
+
+          <!-- Findings List Container -->
+          <div class="findings-list" id="findings-list-container">
+            <!-- Populated dynamically with rich finding cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. FINOPS & COSTS VIEW -->
+      <section id="view-cost" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>FinOps & Cost Governance</h2>
+            <p>Automated Infracost breakdowns calculated before every Terraform apply.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Sample Infracost Monthly Breakdown (Fullstack Standard)</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>AWS Resource</th>
+                <th>Type / SKU</th>
+                <th>Monthly Cost</th>
+                <th>Governance Guardrail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>module.vpc.aws_nat_gateway</strong></td>
+                <td>NAT Gateway Data Processing</td>
+                <td>$32.40</td>
+                <td><span class="badge badge-info">Optional in Dev</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.alb.aws_lb</strong></td>
+                <td>Application Load Balancer</td>
+                <td>$16.20</td>
+                <td><span class="badge badge-success">Approved</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.rds.aws_db_instance</strong></td>
+                <td>db.t3.micro (PostgreSQL 15)</td>
+                <td>$14.80</td>
+                <td><span class="badge badge-success">Size Allowed</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.ec2.aws_instance</strong></td>
+                <td>t3.micro (Auto Scaling)</td>
+                <td>$8.40</td>
+                <td><span class="badge badge-success">Size Whitelisted</span></td>
+              </tr>
+              <tr style="background: rgba(99, 102, 241, 0.05); font-weight: bold;">
+                <td>TOTAL ESTIMATE</td>
+                <td>AWS ap-south-1</td>
+                <td style="color: #34D399; font-size: 1.1rem;">$71.80 / month</td>
+                <td><span class="badge badge-success">Under $100 Budget</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. OBSERVABILITY & SLOS VIEW -->
+      <section id="view-monitoring" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Observability, Metrics & SLOs</h2>
+            <p>Prometheus metrics scrape, Grafana dashboards, and error budget tracking.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon--cyan">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">API p99 Latency</div>
+              <div class="stat-value">38 ms</div>
+              <div class="stat-sub positive">SLO target: &lt; 200 ms</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon--green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Platform Availability</div>
+              <div class="stat-value">99.98%</div>
+              <div class="stat-sub positive">Error budget remaining: 92%</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon--indigo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">EC2 CPU Utilization</div>
+              <div class="stat-value">14.2%</div>
+              <div class="stat-sub positive">Auto-scaling healthy</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-wrap stat-icon--amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">RDS Active Connections</div>
+              <div class="stat-value">6 / 100</div>
+              <div class="stat-sub positive">Connection pool optimized</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. AUDIT TRAIL VIEW -->
+      <section id="view-audit" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Immutable Audit Trail</h2>
+            <p>Append-only audit logs recording every deployment, approval, and administrative action.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Audit Events Log (PostgreSQL RLS Protected)</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Actor / Identity</th>
+                <th>Action Taken</th>
+                <th>Target Resource</th>
+                <th>Origin IP</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Approval Gate Modal -->
+  <div class="modal-overlay" id="approval-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🛡️ Staging / Production Approval Gate</h3>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px;">
+        Gitleaks scan, Checkov IaC security audit, and Infracost estimates have passed.
+        Please confirm authorization to apply Terraform and deploy this workload to AWS.
+      </p>
+      <div style="background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md); margin-bottom: 24px;">
+        <strong id="modal-dep-details" style="color: #fff;">ecommerce-core (staging)</strong>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" id="modal-reject-btn">Reject Deployment</button>
+        <button class="btn btn-primary" id="modal-approve-btn">Approve & Apply to AWS</button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end #app-shell -->
+
+  <!-- Click-away overlay for user panel -->
+  <div class="user-panel-backdrop" id="user-panel-backdrop" onclick="closeUserPanel()"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

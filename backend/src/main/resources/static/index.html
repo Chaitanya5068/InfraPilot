@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InfraPilot — Multi-Cloud DevOps & SRE Platform</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-badge">IP</div>
+      <div class="logo-text">
+        <h1>InfraPilot</h1>
+        <div class="logo-tagline">DevSecOps & SRE Platform</div>
+      </div>
+    </div>
+
+    <div class="header-status">
+      <div class="status-pill" id="backend-status-indicator">
+        <span class="pulse-dot"></span> InfraPilot: Ready
+      </div>
+      <div class="status-pill">
+        <span>Cloud: <strong>AWS ap-south-1</strong></span>
+      </div>
+      <div class="user-badge">
+        <div class="avatar">C</div>
+        <div class="user-meta">
+          <div class="name">Chaitanya</div>
+          <span class="role-tag">DEVOPS LEAD</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <a class="nav-item active" data-view="dashboard">
+        <span class="icon">📊</span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="deploy">
+        <span class="icon">🚀</span>
+        <span>Deploy Wizard</span>
+      </a>
+      <a class="nav-item" data-view="pipelines">
+        <span class="icon">⚡</span>
+        <span>Pipelines & Logs</span>
+      </a>
+      <a class="nav-item" data-view="security">
+        <span class="icon">🛡️</span>
+        <span>Security & Scans</span>
+      </a>
+      <a class="nav-item" data-view="cost">
+        <span class="icon">💰</span>
+        <span>FinOps & Costs</span>
+      </a>
+      <a class="nav-item" data-view="monitoring">
+        <span class="icon">📈</span>
+        <span>Observability & SLOs</span>
+      </a>
+      <a class="nav-item" data-view="audit">
+        <span class="icon">📜</span>
+        <span>Audit Trail</span>
+      </a>
+    </aside>
+
+    <!-- Main Views -->
+    <main class="main-content">
+
+      <!-- 1. DASHBOARD VIEW -->
+      <section id="view-dashboard" class="view-section active-view">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Platform Overview</h2>
+            <p>Real-time infrastructure status, DORA metrics, and cloud workloads.</p>
+          </div>
+          <button class="btn btn-primary" onclick="switchView('deploy')">
+            <span>+</span> New Deployment
+          </button>
+        </div>
+
+        <!-- 4 KPI Stat Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Active Deployments</div>
+            <div class="stat-value">3</div>
+            <div class="stat-sub positive">● All healthy in ap-south-1</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">DORA Lead Time</div>
+            <div class="stat-value">4.2 min</div>
+            <div class="stat-sub positive">↓ 18% from last week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Security Gate Pass Rate</div>
+            <div class="stat-value">100%</div>
+            <div class="stat-sub positive">Gitleaks + Checkov compliant</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estimated Monthly Spend</div>
+            <div class="stat-value">$196.70</div>
+            <div class="stat-sub warning">Infracost tracked per workspace</div>
+          </div>
+        </div>
+
+        <!-- Deployments Table -->
+        <div class="card">
+          <div class="card-title">
+            <span>Recent Workloads & Environments</span>
+            <span class="badge badge-info">Multi-Tenant Isolated</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Project / ID</th>
+                <th>Status</th>
+                <th>Environment</th>
+                <th>Provider & Region</th>
+                <th>Monthly Cost</th>
+                <th>Live Endpoint</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="deployments-tbody">
+              <!-- Dynamically rendered by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. DEPLOY WIZARD VIEW -->
+      <section id="view-deploy" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Self-Service Deployment Wizard</h2>
+            <p>Deploy application code to automated AWS Terraform infrastructure in 1 click.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <form id="deploy-form">
+            <h3 style="font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-cyan);">Step 1: Project & Target Environment</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="deploy-project">Project Name</label>
+                <input type="text" id="deploy-project" class="form-control" placeholder="e.g. user-auth-service" required value="payment-engine">
+              </div>
+              <div class="form-group">
+                <label for="deploy-provider">Cloud Provider</label>
+                <select id="deploy-provider" class="form-control">
+                  <option value="AWS">Amazon Web Services (AWS)</option>
+                  <option value="Azure" disabled>Microsoft Azure (Phase 5)</option>
+                  <option value="GCP" disabled>Google Cloud Platform (Phase 6)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="deploy-env">Environment</label>
+                <select id="deploy-env" class="form-control">
+                  <option value="dev">Development (dev)</option>
+                  <option value="staging">Staging (staging)</option>
+                  <option value="prod">Production (prod)</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin: 24px 0 20px 0; color: var(--accent-cyan);">Step 2: Architecture Template & Source Code</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="deploy-template">Architecture Template</label>
+                <select id="deploy-template" class="form-control">
+                  <option value="fullstack-standard">Fullstack Standard (VPC + EC2 + RDS + ALB)</option>
+                  <option value="container-standard">Container Standard (VPC + ECS + RDS + ECR)</option>
+                  <option value="serverless-basic">Serverless Basic (Lambda + API GW)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="deploy-repo">GitHub Repository URL</label>
+                <input type="text" id="deploy-repo" class="form-control" placeholder="https://github.com/org/repo" required value="https://github.com/infrapilot/sample-app">
+              </div>
+              <div class="form-group">
+                <label for="deploy-branch">Branch</label>
+                <input type="text" id="deploy-branch" class="form-control" value="main" required>
+              </div>
+            </div>
+
+            <!-- Infracost Preview Banner -->
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px dashed var(--primary); border-radius: var(--radius-md); padding: 18px; margin: 24px 0; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="color: #fff;">Infracost Real-time Estimate</strong>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Pre-deployment cost breakdown calculated based on template specifications.</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 1.4rem; font-weight: 700; color: #34D399;" id="cost-estimate-preview">$23.40 / month</div>
+                <small style="color: var(--text-dim);">No AWS bill incurred until approved</small>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; justify-content: flex-end;">
+              <button type="button" class="btn btn-secondary" onclick="switchView('dashboard')">Cancel</button>
+              <button type="submit" class="btn btn-primary">🚀 Submit & Trigger Pipeline</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 3. PIPELINES VIEW -->
+      <section id="view-pipelines" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>CI/CD Automation Pipeline</h2>
+            <p>11-Stage Automated DevSecOps, FinOps, and Terraform Workflow.</p>
+          </div>
+        </div>
+
+        <!-- Animated 9-Step Stepper -->
+        <div class="stepper-container">
+          <div class="step-item" id="step-1">
+            <div class="step-node">1</div>
+            <div class="step-label">Checkout</div>
+          </div>
+          <div class="step-item" id="step-2">
+            <div class="step-node">2</div>
+            <div class="step-label">Tests</div>
+          </div>
+          <div class="step-item" id="step-3">
+            <div class="step-node">3</div>
+            <div class="step-label">Gitleaks</div>
+          </div>
+          <div class="step-item" id="step-4">
+            <div class="step-node">4</div>
+            <div class="step-label">Checkov</div>
+          </div>
+          <div class="step-item" id="step-5">
+            <div class="step-node">5</div>
+            <div class="step-label">Infracost</div>
+          </div>
+          <div class="step-item" id="step-6">
+            <div class="step-node">6</div>
+            <div class="step-label">TF Plan</div>
+          </div>
+          <div class="step-item" id="step-7">
+            <div class="step-node">7</div>
+            <div class="step-label">Approval Gate</div>
+          </div>
+          <div class="step-item" id="step-8">
+            <div class="step-node">8</div>
+            <div class="step-label">TF Apply</div>
+          </div>
+          <div class="step-item" id="step-9">
+            <div class="step-node">9</div>
+            <div class="step-label">Smoke Tests</div>
+          </div>
+        </div>
+
+        <!-- Real-Time Terminal Logs -->
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <div class="dot red"></div>
+              <div class="dot yellow"></div>
+              <div class="dot green"></div>
+            </div>
+            <div class="terminal-title">infra-pipeline-runner.log — Live Output Stream</div>
+          </div>
+          <div class="terminal-body" id="pipeline-terminal">
+            <div class="log-line"><span class="log-time">[SYSTEM]</span> <span class="log-info">Ready. Submit a deployment from the Deploy Wizard to run live pipeline.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. SECURITY & SCANS VIEW -->
+      <section id="view-security" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>DevSecOps Compliance & Security Scans</h2>
+            <p>Automated secret scanning, infrastructure misconfiguration audits, and container vulnerability tracking.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Security Severity Policy</div>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+            <span class="badge badge-danger">CRITICAL</span> Aborts pipeline immediately. | 
+            <span class="badge badge-warning">HIGH</span> Requires DevOps acknowledgement. | 
+            <span class="badge badge-info">MEDIUM</span> Logged and monitored.
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Security Scanner</th>
+                <th>Scan Type</th>
+                <th>Status / Severity</th>
+                <th>Findings Description</th>
+                <th>Scanned Time</th>
+              </tr>
+            </thead>
+            <tbody id="security-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. FINOPS & COSTS VIEW -->
+      <section id="view-cost" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>FinOps & Cost Governance</h2>
+            <p>Automated Infracost breakdowns calculated before every Terraform apply.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Sample Infracost Monthly Breakdown (Fullstack Standard)</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>AWS Resource</th>
+                <th>Type / SKU</th>
+                <th>Monthly Cost</th>
+                <th>Governance Guardrail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>module.vpc.aws_nat_gateway</strong></td>
+                <td>NAT Gateway Data Processing</td>
+                <td>$32.40</td>
+                <td><span class="badge badge-info">Optional in Dev</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.alb.aws_lb</strong></td>
+                <td>Application Load Balancer</td>
+                <td>$16.20</td>
+                <td><span class="badge badge-success">Approved</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.rds.aws_db_instance</strong></td>
+                <td>db.t3.micro (PostgreSQL 15)</td>
+                <td>$14.80</td>
+                <td><span class="badge badge-success">Size Allowed</span></td>
+              </tr>
+              <tr>
+                <td><strong>module.ec2.aws_instance</strong></td>
+                <td>t3.micro (Auto Scaling)</td>
+                <td>$8.40</td>
+                <td><span class="badge badge-success">Size Whitelisted</span></td>
+              </tr>
+              <tr style="background: rgba(99, 102, 241, 0.05); font-weight: bold;">
+                <td>TOTAL ESTIMATE</td>
+                <td>AWS ap-south-1</td>
+                <td style="color: #34D399; font-size: 1.1rem;">$71.80 / month</td>
+                <td><span class="badge badge-success">Under $100 Budget</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6. OBSERVABILITY & SLOS VIEW -->
+      <section id="view-monitoring" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Observability, Metrics & SLOs</h2>
+            <p>Prometheus metrics scrape, Grafana dashboards, and error budget tracking.</p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">API p99 Latency</div>
+            <div class="stat-value">38 ms</div>
+            <div class="stat-sub positive">SLO target: &lt; 200 ms</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Platform Availability</div>
+            <div class="stat-value">99.98%</div>
+            <div class="stat-sub positive">Error budget remaining: 92%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">EC2 CPU Utilization</div>
+            <div class="stat-value">14.2%</div>
+            <div class="stat-sub positive">Auto-scaling healthy</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">RDS Active Connections</div>
+            <div class="stat-value">6 / 100</div>
+            <div class="stat-sub positive">Connection pool optimized</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. AUDIT TRAIL VIEW -->
+      <section id="view-audit" class="view-section">
+        <div class="view-header">
+          <div class="view-title">
+            <h2>Immutable Audit Trail</h2>
+            <p>Append-only audit logs recording every deployment, approval, and administrative action.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Audit Events Log (PostgreSQL RLS Protected)</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Actor / Identity</th>
+                <th>Action Taken</th>
+                <th>Target Resource</th>
+                <th>Origin IP</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Approval Gate Modal -->
+  <div class="modal-overlay" id="approval-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🛡️ Staging / Production Approval Gate</h3>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 16px;">
+        Gitleaks scan, Checkov IaC security audit, and Infracost estimates have passed.
+        Please confirm authorization to apply Terraform and deploy this workload to AWS.
+      </p>
+      <div style="background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md); margin-bottom: 24px;">
+        <strong id="modal-dep-details" style="color: #fff;">ecommerce-core (staging)</strong>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" id="modal-reject-btn">Reject Deployment</button>
+        <button class="btn btn-primary" id="modal-approve-btn">Approve & Apply to AWS</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

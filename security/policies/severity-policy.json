@@ -1,0 +1,7 @@
+{
+  "CRITICAL": "block",
+  "HIGH": "warn",
+  "MEDIUM": "record",
+  "LOW": "record",
+  "INFO": "record"
+}

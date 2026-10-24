@@ -1,0 +1,11 @@
+groups:
+  - name: infrapilot-platform
+    rules:
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target is unavailable"
+          description: "Target {{ $labels.job }} at {{ $labels.instance }} has been down for more than two minutes."
