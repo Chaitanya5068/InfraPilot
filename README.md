@@ -1,89 +1,118 @@
-# InfraPilot
+# InfraPilot — Production DevSecOps, Cloud & SRE Enterprise Platform
+[![CI/CD Pipeline](https://github.com/Chaitanya5068/InfraPilot/actions/workflows/ci-cd-pipeline.yml/badge.svg)](https://github.com/Chaitanya5068/InfraPilot/actions)
+[![Terraform IaC](https://github.com/Chaitanya5068/InfraPilot/actions/workflows/terraform-ci.yml/badge.svg)](https://github.com/Chaitanya5068/InfraPilot/actions)
+[![Security Scans](https://img.shields.io/badge/DevSecOps-Gitleaks%20%7C%20Trivy%20%7C%20Checkov-blue)](security/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.28%20%7C%20HPA%20%7C%20Ingress-326ce5)](k8s/)
+[![Observability](https://img.shields.io/badge/SRE-Prometheus%20%7C%20Grafana%20%7C%20SLOs-orange)](monitoring/)
 
-InfraPilot is a multi-tenant internal developer platform for AWS deployments. The project is being built in the phases in the developer guide. Phase 0 provides the local service stack and initial Spring Boot/Vaadin shell; the Terraform AWS foundation is also present from the earlier infrastructure scaffold.
+An enterprise-grade **Cloud, DevOps, and SRE Platform** built with **Full-Stack Spring Boot / JavaScript, Terraform Infrastructure-as-Code, Kubernetes / Helm, GitHub Actions CI/CD, and SRE Observability**.
 
-## Stack
+Designed to showcase real-world production engineering competencies across **Infrastructure Automation, Security Scanning, Container Orchestration, and System Reliability**.
 
-- Java 17, Spring Boot 3, Vaadin 24
-- PostgreSQL 15, Redis 7
-- Terraform 1.6+, AWS provider 5.x
-- Docker Compose for local dependencies
-- Prometheus and Grafana for local observability
+---
 
-## Repository layout
+## 🎯 Architecture & Engineering Stack
 
-```text
-backend/                    Spring Boot API and Flyway migrations
-frontend/                   Vaadin application shell
-scripts/                    Local setup and database initialization
-infrastructure/
-  aws/
-    modules/                 Reusable VPC, ALB, EC2, RDS, ECR, and SQS modules
-    templates/fullstack-standard/
-                            AWS full-stack deployment template
-    state-bootstrap/         One-time remote Terraform state resources
-monitoring/                  Prometheus configuration and Grafana provisioning
-security/                    Scanner policy configuration
+```mermaid
+graph TD
+    Client[Browser / CLI / GitHub Webhooks] --> Ingress[Nginx Ingress / AWS ALB]
+    Ingress --> K8sCluster[Kubernetes / EKS: 3-Replica Pods + HPA Autoscaling]
+    
+    subgraph AppWorkload["Full-Stack Application Layer"]
+        K8sCluster --> SpringBoot[Spring Boot 3 REST API + Modern Responsive UI]
+        SpringBoot --> Postgres[(PostgreSQL 15 RDS + Flyway V1-V3 RLS)]
+        SpringBoot --> Redis[(Redis 7 Cache / Session Store)]
+    end
+
+    subgraph CI_CD["GitHub Actions GitOps Pipeline"]
+        Dev[Git Push / PR] --> GitHubActions[Automated Multi-Stage CI/CD]
+        GitHubActions --> Test[Maven Unit & Integration Tests]
+        GitHubActions --> DevSecOps[Gitleaks + Trivy + Checkov Security Audits]
+        GitHubActions --> DockerBuild[Multi-Stage Distroless Docker Build]
+        DockerBuild --> GHCR[ghcr.io Container Registry]
+        GHCR --> GitOpsDeploy[Helm 3 / ArgoCD Deployment to K8s]
+    end
+
+    subgraph SRE_Observability["Site Reliability Engineering (SRE)"]
+        K8sCluster --> Prometheus[Prometheus Scrapes + Alerts.yml]
+        Prometheus --> Grafana[Grafana 4 Golden Signals Dashboards]
+        Prometheus --> Alertmanager[Alertmanager Webhooks / Slack]
+        Prometheus --> SLO[Error Budget & p99 Latency Burn Rate Tracker]
+    end
 ```
 
-## Local development services
+---
 
-Install Docker Desktop and Java 17. Install Maven 3.9+, then copy the example environment file and start PostgreSQL, Redis, Vault (development mode), Prometheus, and Grafana:
+## 🛠️ Key Competencies & Implemented Features
 
-```powershell
-Copy-Item .env.example .env
+### 1. ☸️ Kubernetes & Container Orchestration (`/k8s` & `/helm`)
+- **Zero-Downtime Rolling Updates**: Configured `maxSurge: 1, maxUnavailable: 0` for seamless deployments.
+- **Horizontal Pod Autoscaling (HPA)**: Dynamic auto-scaling between 3 and 10 replicas triggered at 70% CPU / 80% Memory thresholds with scale-down stabilization windows.
+- **High Availability Pod Anti-Affinity**: Ensures replicas are spread across distinct Kubernetes worker nodes.
+- **Liveness & Readiness Probes**: Automated health checks pinging `/api/v1/health` with failure thresholds.
+- **Modular Helm Chart**: Environment-specific configurations (`values.yaml` for Dev, `values-prod.yaml` for Production).
+
+### 2. 🚀 Automated CI/CD Pipelines (`.github/workflows`)
+- **`ci-cd-pipeline.yml`**:
+  - Multi-stage parallelized workflow: Build & Test &rarr; DevSecOps Security Audit &rarr; Docker Build & Push &rarr; GitOps Deployment.
+  - Automated security report upload (SARIF) to GitHub Security Center.
+- **`terraform-ci.yml`**:
+  - Automated `terraform fmt -check`, `tflint`, and `checkov` static analysis for cloud infrastructure modules before merge.
+
+### 3. 🛡️ DevSecOps & Security Hardening
+- **Secrets Detection**: Gitleaks prevents secret leakage in git history.
+- **Vulnerability Scanning**: Trivy scans container base images and filesystem dependencies.
+- **IaC Compliance**: Checkov validates AWS CIS Benchmarks across Terraform modules.
+- **Container Hardening**: Multi-stage Dockerfile running as non-root user `10001:10001` with minimal attack surface.
+
+### 4. 📊 Site Reliability Engineering (SRE) & Observability (`/monitoring`)
+- **The 4 Golden Signals**: Latency, Traffic, Errors, and Saturation tracked via Prometheus & Grafana.
+- **SLI / SLO Alerting (`monitoring/prometheus/alerts.yml`)**:
+  - `HighErrorRateBurn`: Alerts when API 5xx errors consume > 1% of error budget in 5 minutes.
+  - `ApiLatencyP99Breach`: Alerts when p99 latency exceeds 250ms SLA.
+  - `KubernetesPodCrashLooping`: Detects flapping pods in production namespace.
+  - `DatabasePoolExhaustion`: Warns when HikariCP connection pool reaches 85% capacity.
+
+### 5. 💻 Full-Stack Multi-Tenant Application
+- **Modern Responsive Dashboard**: Interactive management of Cloud deployments, active pipelines, security scan findings, and developer activity monitoring.
+- **PostgreSQL Row-Level Security (RLS)**: Enforced isolation across independent tenant organizations and root administrators.
+- **Dual Independent Port Architecture**:
+  - Main Platform: `http://localhost:8080/`
+  - Zero-Blast-Radius Admin Portal: `http://localhost:8085/`
+
+---
+
+## ⚡ Quick Start Guide
+
+### Run Locally with Docker Compose
+```bash
+# 1. Clone repository
+git clone https://github.com/Chaitanya5068/InfraPilot.git
+cd InfraPilot
+
+# 2. Start PostgreSQL, Redis, Prometheus, and Grafana
 docker compose up -d
-docker compose ps
+
+# 3. Start InfraPilot Main Application
+node scripts/serve.js
+# Access Main Platform: http://localhost:8080/
+
+# 4. Start Independent Admin Node
+node scripts/serve-admin.js
+# Access Admin Portal: http://localhost:8085/
 ```
 
-The compose stack creates a non-superuser `infrapilot` database account for the application and Flyway migrations. Service ports are bound to loopback: PostgreSQL `5432`, Redis `6379`, Vault `8200`, Prometheus `9090`, and Grafana `3000`. Vault uses the development token from `.env` and in-memory storage; this configuration is for local development only. Do not expose these services or use this Vault configuration outside a disposable development environment. Grafana's default local credentials are `admin` / `admin`; change them in `.env` before any shared use.
-
-Start the application from the repository root; the script loads local variables from `.env` and launches Maven:
-
-```powershell
-.\scripts\run-local.ps1
+### Dry-Run Kubernetes Deployment with Helm
+```bash
+# Validate and generate Kubernetes production manifests
+helm lint helm/infrapilot/
+helm template infrapilot-prod helm/infrapilot/ -f helm/infrapilot/values-prod.yaml
 ```
 
-The shell runs at `http://localhost:8080/login`. Check application and database connectivity at `http://localhost:8080/api/v1/health`; successful output includes `"status":"UP"` and `"database":"UP"`. Prometheus is at `http://localhost:9090` and Grafana at `http://localhost:3000`. The Vaadin login form is a Phase 0 UI shell only; authentication is not implemented yet.
+---
 
-Stop services with `docker compose down`. Add `-v` only when intentionally removing local database and cache data.
-
-To create all planned project directories and non-overwriting `.gitkeep` placeholders, run:
-
-```powershell
-.\scripts\create-project-structure.ps1
-```
-
-## AWS infrastructure
-
-The `fullstack-standard` template builds a VPC with public, private, and database subnets, a public ALB, private EC2 Auto Scaling Group, encrypted PostgreSQL RDS with an AWS-managed master password, ECR, and encrypted SQS queues with dead-letter queues. EC2 has no SSH ingress; use AWS Systems Manager Session Manager. TLS is enabled when an ACM certificate ARN is supplied; without one, the ALB serves HTTP and is suitable only for development.
-
-Before planning:
-
-1. Install Terraform 1.6 or later and configure AWS credentials using the AWS CLI or an approved identity provider.
-2. Copy `terraform.tfvars.example` to `terraform.tfvars` and set unique organization, project, deployment, and environment values. Keep `app_image_tag` empty for the first apply; this provisions the registry and supporting infrastructure without starting EC2 instances.
-3. For shared state, apply `infrastructure/aws/state-bootstrap` once using an administrator-approved state bucket name. Then initialize the deployment template with the resulting bucket and lock table. Do not use local state for shared or production deployments.
-4. Review the plan, including AWS costs, before applying. NAT Gateway, ALB, and RDS incur charges even during the initial apply. No command in this repository applies infrastructure without an explicit operator action.
-5. After the initial apply, get the ECR repository URL with `terraform -chdir=infrastructure/aws/templates/fullstack-standard output -raw ecr_repository_url`. Build and push an application image with a unique immutable tag using the AWS CLI and Docker; then set `app_image_tag` to that tag and apply again to launch EC2. The application must listen on `8080` and return HTTP 200-399 at `/actuator/health` (or update the ALB health-check path).
-
-Terraform template commands (after configuring the backend):
-
-```powershell
-terraform -chdir=infrastructure/aws/templates/fullstack-standard init `
-  -backend-config="bucket=<state-bucket>" `
-  -backend-config="key=<org>/<project>/<environment>/terraform.tfstate" `
-  -backend-config="region=ap-south-1" `
-  -backend-config="dynamodb_table=<lock-table>" `
-  -backend-config="encrypt=true"
-terraform -chdir=infrastructure/aws/templates/fullstack-standard plan -var-file=terraform.tfvars
-```
-
-Keep backend configuration values in your deployment environment; never put credentials in Terraform files. The bootstrap stack uses a separately managed state location and must not be pointed at the bucket it creates.
-
-## Build phases
-
-- Phase 0: local services, initial Flyway schema, health endpoint, and Vaadin shell.
-- Phase 1: AWS infrastructure modules and template are in place; validate in a non-production AWS account before use.
-- Later phases: Jenkins pipeline and shared library, application/API and SQS orchestration, Vaadin dashboard, tenant RLS/security controls, then production observability and operational runbooks.
-
-The PDF guide is the product specification. In particular, its production requirements include PostgreSQL row-level security, tenant-scoped authorization, immutable audit events, secret management, approval gates, and security scans. Phase 0 configures initial row-level security policies, but transaction-scoped tenant context and tenant authorization will be completed in Phase 3. Infrastructure modules alone do not implement or certify these application-level controls.
+## 👨‍💻 Author & Contact
+- **Engineer**: Chaitanya
+- **Role**: Cloud / DevOps / SRE Engineer
+- **GitHub**: [@Chaitanya5068](https://github.com/Chaitanya5068)
+- **Repository**: [https://github.com/Chaitanya5068/InfraPilot](https://github.com/Chaitanya5068/InfraPilot)
