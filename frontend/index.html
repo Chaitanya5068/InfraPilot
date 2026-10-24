@@ -484,47 +484,85 @@
 
         <div class="card">
           <form id="deploy-form">
-            <h3 style="font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-cyan);">Step 1: Project & Target Environment</h3>
+            <h3 style="font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-cyan); display: flex; justify-content: space-between; align-items: center;">
+              <span>Step 1: Application Source & Onboarding</span>
+              <span class="badge badge-info">v2.1 Repo Onboarding Protocol</span>
+            </h3>
+
+            <!-- Radio Mode: Demo App vs Custom Repo -->
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px;">
+              <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600;">
+                  <input type="radio" name="onboarding-mode" id="mode-demo" value="demo" checked onchange="toggleOnboardingMode('demo')">
+                  <span>🚀 Run with Demo App (Bundled Java 17 + PostgreSQL)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-weight: 600;">
+                  <input type="radio" name="onboarding-mode" id="mode-custom" value="custom" onchange="toggleOnboardingMode('custom')">
+                  <span>🔗 Paste My Repo URL (GitHub / GitLab)</span>
+                </label>
+              </div>
+              <div id="demo-mode-desc" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 8px; font-family: var(--font-mono);">
+                Using bundled fullstack app with infrapilot.yml, Spring Boot REST API, Actuator Prometheus metrics, and multi-stage Dockerfile.
+              </div>
+            </div>
+
             <div class="form-grid">
-              <div class="form-group">
-                <label for="deploy-project">Project Name</label>
-                <input type="text" id="deploy-project" class="form-control" placeholder="e.g. user-auth-service" required value="payment-engine">
+              <div class="form-group" style="grid-column: span 2;">
+                <label for="deploy-repo">Repository URL</label>
+                <div style="display: flex; gap: 10px;">
+                  <input type="text" id="deploy-repo" class="form-control" placeholder="https://github.com/username/repository" value="https://github.com/Chaitanya5068/InfraPilot.git" required oninput="analyzeRepoUrl(this.value)">
+                  <button type="button" class="btn btn-secondary" onclick="runRepoAnalyzer()" style="white-space: nowrap;">
+                    🔍 Auto-Detect Stack
+                  </button>
+                </div>
               </div>
               <div class="form-group">
-                <label for="deploy-provider">Cloud Provider</label>
-                <select id="deploy-provider" class="form-control">
-                  <option value="AWS">Amazon Web Services (AWS)</option>
-                  <option value="Azure" disabled>Microsoft Azure (Phase 5)</option>
-                  <option value="GCP" disabled>Google Cloud Platform (Phase 6)</option>
+                <label for="deploy-branch">Branch</label>
+                <select id="deploy-branch" class="form-control">
+                  <option value="main" selected>main (clean / green pipeline)</option>
+                  <option value="insecure-demo">insecure-demo (shows Gitleaks/Trivy fail gates)</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="deploy-env">Environment</label>
+                <label for="deploy-env">Target Environment</label>
                 <select id="deploy-env" class="form-control">
-                  <option value="dev">Development (dev)</option>
-                  <option value="staging">Staging (staging)</option>
-                  <option value="prod">Production (prod)</option>
+                  <option value="dev" selected>Development (dev · single EC2)</option>
+                  <option value="staging">Staging (staging · pre-prod)</option>
+                  <option value="prod">Production (prod · requires DevOps approval)</option>
                 </select>
               </div>
             </div>
 
-            <h3 style="font-size: 1.1rem; margin: 24px 0 20px 0; color: var(--accent-cyan);">Step 2: Architecture Template & Source Code</h3>
+            <!-- Auto-Detection Readiness Card (Section 6 & 13.3 of Guide) -->
+            <div id="repo-readiness-card" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 14px 18px; border-radius: var(--radius-md); margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                  <span class="pulse-dot green"></span>
+                  Detected Contract: <span id="detected-stack-label" style="color: #34D399;">infrapilot.yml (Java Maven 17 + Dockerfile)</span>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 4px;">
+                  Port: <strong>8080</strong> · Health: <code>/actuator/health</code> · Metrics: <code>/actuator/prometheus</code> · Tests: <strong>JUnit 5 + Newman</strong>
+                </div>
+              </div>
+              <span class="badge badge-success">Readiness: 100% Ready</span>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin: 24px 0 20px 0; color: var(--accent-cyan);">Step 2: Architecture Template & Cloud Targets</h3>
             <div class="form-grid">
               <div class="form-group">
-                <label for="deploy-template">Architecture Template</label>
+                <label for="deploy-template">Terraform Architecture Template</label>
                 <select id="deploy-template" class="form-control">
-                  <option value="fullstack-standard">Fullstack Standard (VPC + EC2 + RDS + ALB)</option>
-                  <option value="container-standard">Container Standard (VPC + ECS + RDS + ECR)</option>
-                  <option value="serverless-basic">Serverless Basic (Lambda + API GW)</option>
+                  <option value="single-host" selected>AWS Single-Host (EC2 + Docker Compose + Monitoring)</option>
+                  <option value="production-ready">AWS Production Multi-AZ (ALB + ASG + RDS Multi-AZ + SQS)</option>
                 </select>
               </div>
               <div class="form-group">
-                <label for="deploy-repo">GitHub Repository URL</label>
-                <input type="text" id="deploy-repo" class="form-control" placeholder="https://github.com/org/repo" required value="https://github.com/infrapilot/sample-app">
-              </div>
-              <div class="form-group">
-                <label for="deploy-branch">Branch</label>
-                <input type="text" id="deploy-branch" class="form-control" value="main" required>
+                <label for="deploy-ci">CI/CD Engine</label>
+                <select id="deploy-ci" class="form-control">
+                  <option value="github-actions" selected>GitHub Actions (.github/workflows/ci-cd-pipeline.yml)</option>
+                  <option value="jenkins">Jenkins Pipeline (Jenkinsfile + Shared Library)</option>
+                  <option value="gitlab-ci">GitLab CI (.gitlab-ci.yml)</option>
+                </select>
               </div>
             </div>
 

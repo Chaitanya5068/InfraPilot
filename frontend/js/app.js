@@ -414,13 +414,62 @@ function setupDeploymentWizard() {
 
   function updateCostPreview() {
     const env = envSelect.value;
-    const template = templateSelect.value;
-    let base = 23.40;
-    if (template === 'container-standard') base = 48.80;
-    if (env === 'staging') base *= 2;
-    if (env === 'prod') base *= 4;
+    const template = templateSelect ? templateSelect.value : 'single-host';
+    let base = 14.80;
+    if (template === 'production-ready') base = 71.80;
+    if (env === 'staging') base *= 1.5;
+    if (env === 'prod') base *= 2.5;
     costEstimateDisplay.textContent = `$${base.toFixed(2)} / month`;
   }
+
+  // Repo Onboarding Mode Toggle (Run with Demo App vs Custom Repo)
+  window.toggleOnboardingMode = function(mode) {
+    const repoInput = document.getElementById('deploy-repo');
+    const descEl = document.getElementById('demo-mode-desc');
+    const branchSelect = document.getElementById('deploy-branch');
+
+    if (mode === 'demo') {
+      if (repoInput) repoInput.value = 'https://github.com/Chaitanya5068/InfraPilot.git';
+      if (descEl) descEl.textContent = 'Using bundled fullstack app with infrapilot.yml, Spring Boot REST API, Actuator Prometheus metrics, and multi-stage Dockerfile.';
+      if (branchSelect) branchSelect.value = 'main';
+    } else {
+      if (repoInput) {
+        repoInput.value = '';
+        repoInput.placeholder = 'https://github.com/your-username/your-app.git';
+        repoInput.focus();
+      }
+      if (descEl) descEl.textContent = 'Paste any GitHub or GitLab repository URL. InfraPilot will auto-detect Dockerfile, tests, and infrapilot.yml contract.';
+    }
+    window.runRepoAnalyzer();
+  };
+
+  // Stack Auto-Detection Analyzer (Section 6 & 13.3 of Guide v2.1)
+  window.runRepoAnalyzer = function() {
+    const repoInput = document.getElementById('deploy-repo');
+    const label = document.getElementById('detected-stack-label');
+    const branch = document.getElementById('deploy-branch');
+    const url = repoInput ? repoInput.value.toLowerCase() : '';
+
+    if (!label) return;
+
+    if (url.includes('infrapilot') || url.includes('demo') || !url) {
+      label.textContent = 'infrapilot.yml (Java Maven 17 + Dockerfile + Spring Boot 3)';
+    } else if (url.includes('node') || url.includes('express') || url.includes('react')) {
+      label.textContent = 'Auto-Detected: Node.js (package.json + Dockerfile)';
+    } else if (url.includes('python') || url.includes('flask') || url.includes('django')) {
+      label.textContent = 'Auto-Detected: Python 3.11 (requirements.txt + Dockerfile)';
+    } else {
+      label.textContent = 'Auto-Detected: Generic Container (Dockerfile present)';
+    }
+
+    if (branch && branch.value === 'insecure-demo') {
+      label.innerHTML = `<span style="color: #EF4444;">insecure-demo (Planted secret & vulnerable dependency for test gates)</span>`;
+    }
+  };
+
+  window.analyzeRepoUrl = function(val) {
+    window.runRepoAnalyzer();
+  };
 
   if (templateSelect && envSelect) {
     templateSelect.addEventListener('change', updateCostPreview);
