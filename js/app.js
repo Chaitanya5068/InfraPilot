@@ -658,6 +658,14 @@ function setupAuth() {
   // Check saved session in localStorage
   const savedUser = localStorage.getItem('infrapilot_auth');
   if (savedUser) {
+    try {
+      const parsed = JSON.parse(savedUser);
+      if (parsed && parsed.email) {
+        authState.user = Object.assign(authState.user, parsed);
+      }
+    } catch (e) {
+      console.error("Failed to parse saved session:", e);
+    }
     if (loginPage) loginPage.style.display = 'none';
     if (appShell) appShell.style.display = 'flex';
   } else {
@@ -674,55 +682,99 @@ function setupAuth() {
     });
   }
 
+  // Dedicated Perform Login handler
+  window.performLogin = function(customEmail, customPass) {
+    const emailInput = document.getElementById('login-email');
+    const passInput = document.getElementById('login-password');
+    const submitBtn = document.getElementById('login-submit-btn');
+    const errorDiv = document.getElementById('login-error');
+    const loginPage = document.getElementById('login-page');
+    const appShell = document.getElementById('app-shell');
+
+    const email = (customEmail || (emailInput ? emailInput.value : '')).trim();
+    if (customEmail && emailInput) emailInput.value = customEmail;
+    if (customPass && passInput) passInput.value = customPass;
+
+    if (!email) {
+      if (errorDiv) errorDiv.textContent = 'Please enter your email or username.';
+      return;
+    }
+
+    if (submitBtn) submitBtn.classList.add('loading');
+    if (errorDiv) errorDiv.textContent = '';
+
+    // Known team profiles dictionary or dynamic parsing for any custom user
+    const knownProfiles = {
+      'chaitanya@infrapilot.dev': { name: 'Chaitanya', role: 'DEVOPS LEAD', avatar: 'C', color: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
+      'priya@infrapilot.dev': { name: 'Priya Sharma', role: 'SR. BACKEND ENGINEER', avatar: 'P', color: 'linear-gradient(135deg, #6366F1, #8B5CF6)' },
+      'arjun@infrapilot.dev': { name: 'Arjun Patel', role: 'DEVOPS ENGINEER', avatar: 'A', color: 'linear-gradient(135deg, #3B82F6, #06B6D4)' },
+      'sneha@infrapilot.dev': { name: 'Sneha Rao', role: 'FRONTEND DEVELOPER', avatar: 'S', color: 'linear-gradient(135deg, #F59E0B, #EF4444)' },
+      'ravi@infrapilot.dev': { name: 'Ravi Kumar', role: 'SRE ENGINEER', avatar: 'R', color: 'linear-gradient(135deg, #6B7280, #9CA3AF)' }
+    };
+
+    const key = email.toLowerCase();
+    let profile = knownProfiles[key];
+    if (!profile) {
+      const prefix = email.split('@')[0].replace(/[._-]/g, ' ');
+      const formatted = prefix.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      profile = {
+        name: formatted || 'Team Member',
+        role: 'DEVELOPER',
+        avatar: (formatted || 'U').charAt(0).toUpperCase(),
+        color: 'linear-gradient(135deg, #0EA5E9, #6366F1)'
+      };
+    }
+
+    // Set active user state
+    authState.user = {
+      email: email,
+      name: profile.name,
+      role: profile.role,
+      avatar: profile.avatar,
+      color: profile.color
+    };
+    authState.loginTime = new Date();
+    authState.sessionId = "sess-" + Math.random().toString(36).substring(2, 10);
+
+    // Record history
+    authState.history.unshift({
+      time: "Just now",
+      ip: "127.0.0.1 (Localhost)",
+      agent: navigator.userAgent.includes("Chrome") ? "Chrome (Windows)" : "Web Browser",
+      success: true
+    });
+
+    // Record Audit Event
+    state.auditEvents.unshift({
+      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      user: `${authState.user.name.toLowerCase()} (${authState.user.role.toLowerCase()})`,
+      action: "USER_AUTHENTICATED",
+      resource: "oauth2/session/" + authState.sessionId,
+      ip: "127.0.0.1"
+    });
+    renderAuditTable();
+
+    // Save session to localStorage
+    localStorage.setItem('infrapilot_auth', JSON.stringify(authState.user));
+
+    setTimeout(() => {
+      if (submitBtn) submitBtn.classList.remove('loading');
+      if (loginPage) loginPage.style.display = 'none';
+      if (appShell) appShell.style.display = 'flex';
+      updateUserProfileDisplay();
+    }, 350);
+  };
+
+  // Helper function to fill test account and immediately authenticate
+  window.fillTestUser = function(email, pass) {
+    window.performLogin(email, pass);
+  };
+
   // Login Form Submission
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
-      const submitBtn = document.getElementById('login-submit-btn');
-      const errorDiv = document.getElementById('login-error');
-
-      if (submitBtn) submitBtn.classList.add('loading');
-      if (errorDiv) errorDiv.textContent = '';
-
-      // Simulate authentication check
-      setTimeout(() => {
-        if (submitBtn) submitBtn.classList.remove('loading');
-
-        // Extract name from email
-        const username = email.split('@')[0] || "Chaitanya";
-        authState.user.email = email;
-        authState.user.name = username.charAt(0).toUpperCase() + username.slice(1);
-        authState.loginTime = new Date();
-        authState.sessionId = "sess-" + Math.random().toString(36).substring(2, 10);
-
-        // Record history
-        authState.history.unshift({
-          time: "Just now",
-          ip: "127.0.0.1 (Localhost)",
-          agent: navigator.userAgent.includes("Chrome") ? "Chrome (Windows)" : "Web Browser",
-          success: true
-        });
-
-        // Record Audit Event
-        state.auditEvents.unshift({
-          timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-          user: `${authState.user.name.toLowerCase()} (${authState.user.role.toLowerCase()})`,
-          action: "USER_AUTHENTICATED",
-          resource: "oauth2/session/" + authState.sessionId,
-          ip: "127.0.0.1"
-        });
-        renderAuditTable();
-
-        // Save session
-        localStorage.setItem('infrapilot_auth', JSON.stringify(authState.user));
-
-        // Switch to App Shell
-        if (loginPage) loginPage.style.display = 'none';
-        if (appShell) appShell.style.display = 'flex';
-
-        updateUserProfileDisplay();
-      }, 700);
+      window.performLogin();
     });
   }
 
@@ -746,8 +798,21 @@ window.socialLogin = function(provider) {
   const loginPage = document.getElementById('login-page');
   const appShell = document.getElementById('app-shell');
 
-  authState.user.name = provider === 'github' ? "Chaitanya (GitHub)" : "Chaitanya (Google)";
-  authState.user.email = provider === 'github' ? "chaitanya@users.noreply.github.com" : "chaitanya@google.com";
+  const ssoUser = provider === 'github' ? {
+    name: "GitHub Developer",
+    email: "github.dev@infrapilot.dev",
+    role: "DEVOPS ENGINEER",
+    avatar: "G",
+    color: "linear-gradient(135deg, #24292E, #4F46E5)"
+  } : {
+    name: "Google Workspace User",
+    email: "workspace@infrapilot.dev",
+    role: "DEVELOPER",
+    avatar: "G",
+    color: "linear-gradient(135deg, #EA4335, #4285F4)"
+  };
+
+  authState.user = ssoUser;
   authState.loginTime = new Date();
   authState.sessionId = "sess-sso-" + Math.random().toString(36).substring(2, 8);
 
@@ -786,6 +851,9 @@ window.logoutUser = function() {
   const loginPage = document.getElementById('login-page');
   const appShell = document.getElementById('app-shell');
   const userPanel = document.getElementById('user-panel');
+  const passInput = document.getElementById('login-password');
+
+  if (passInput) passInput.value = '';
 
   state.auditEvents.unshift({
     timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
@@ -802,6 +870,31 @@ window.logoutUser = function() {
 };
 
 function updateUserProfileDisplay() {
+  // Update Top Navigation Header
+  const hName = document.getElementById('header-user-name');
+  const hRole = document.getElementById('header-user-role');
+  const hAvatar = document.getElementById('header-user-avatar');
+  const hAvatarWrap = document.getElementById('header-avatar-wrap');
+
+  if (hName) hName.textContent = authState.user.name;
+  if (hRole) hRole.textContent = authState.user.role;
+  if (hAvatar) hAvatar.textContent = authState.user.avatar;
+  if (hAvatarWrap && authState.user.color) hAvatarWrap.style.background = authState.user.color;
+
+  // Update User Dropdown Panel
+  const upName = document.getElementById('up-user-name');
+  const upEmail = document.getElementById('up-email');
+  const upRole = document.getElementById('up-role-badge');
+  const upAvatar = document.getElementById('up-avatar-text');
+  const upAvatarWrap = document.getElementById('up-avatar-wrap');
+
+  if (upName) upName.textContent = authState.user.name;
+  if (upEmail) upEmail.textContent = authState.user.email;
+  if (upRole) upRole.textContent = authState.user.role;
+  if (upAvatar) upAvatar.textContent = authState.user.avatar;
+  if (upAvatarWrap && authState.user.color) upAvatarWrap.style.background = authState.user.color;
+
+  // Session & Metadata elements
   const sessionEl = document.getElementById('up-session-id');
   const loginTimeEl = document.getElementById('up-login-time');
   const browserEl = document.getElementById('up-browser');

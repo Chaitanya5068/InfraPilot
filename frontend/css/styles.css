@@ -1390,6 +1390,23 @@ table.data-table tr:hover td {
   background: rgba(99,102,241,0.04);
 }
 
+.login-chip-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.login-chip-btn:hover {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--primary);
+  color: #FFF;
+}
+
 .login-input-wrap svg {
   color: var(--text-dim);
   flex-shrink: 0;

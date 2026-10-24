@@ -27,12 +27,19 @@
           <p class="login-subtitle">Multi-Cloud DevSecOps & SRE Platform</p>
         </div>
 
-        <form id="login-form" class="login-form">
+        <form id="login-form" class="login-form" onsubmit="event.preventDefault(); performLogin();">
           <div class="login-field">
             <label for="login-email">Email or Username</label>
             <div class="login-input-wrap">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <input type="text" id="login-email" placeholder="chaitanya@infrapilot.dev" value="chaitanya@infrapilot.dev" required autocomplete="username" />
+              <input type="text" id="login-email" placeholder="e.g. priya@infrapilot.dev" value="chaitanya@infrapilot.dev" required autocomplete="username" />
+            </div>
+            <div class="login-quick-chips" style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center;">
+              <span style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono);">Switch Account:</span>
+              <button type="button" class="login-chip-btn" onclick="fillTestUser('chaitanya@infrapilot.dev', 'admin123')">Chaitanya</button>
+              <button type="button" class="login-chip-btn" onclick="fillTestUser('priya@infrapilot.dev', 'priya123')">Priya</button>
+              <button type="button" class="login-chip-btn" onclick="fillTestUser('arjun@infrapilot.dev', 'arjun123')">Arjun</button>
+              <button type="button" class="login-chip-btn" onclick="fillTestUser('sneha@infrapilot.dev', 'sneha123')">Sneha</button>
             </div>
           </div>
           <div class="login-field">
@@ -53,7 +60,7 @@
             </label>
             <a href="#" class="login-forgot">Forgot password?</a>
           </div>
-          <button type="submit" class="login-submit-btn" id="login-submit-btn">
+          <button type="button" class="login-submit-btn" id="login-submit-btn" onclick="performLogin()">
             <span class="login-btn-text">Sign In</span>
             <div class="login-spinner" id="login-spinner"></div>
           </button>
@@ -119,13 +126,13 @@
         <span>Cloud: <strong>AWS ap-south-1</strong></span>
       </div>
       <div class="user-badge" id="user-badge-toggle" onclick="toggleUserPanel()" style="cursor:pointer;">
-        <div class="avatar">
-          <span>C</span>
+        <div class="avatar" id="header-avatar-wrap">
+          <span id="header-user-avatar">C</span>
           <span class="avatar-status-dot"></span>
         </div>
         <div class="user-meta">
-          <div class="name">Chaitanya</div>
-          <span class="role-tag">DEVOPS LEAD</span>
+          <div class="name" id="header-user-name">Chaitanya</div>
+          <span class="role-tag" id="header-user-role">DEVOPS LEAD</span>
         </div>
         <svg class="user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -133,14 +140,14 @@
       <!-- User Profile Dropdown Panel -->
       <div class="user-panel" id="user-panel">
         <div class="up-header">
-          <div class="up-avatar">
-            <span>C</span>
+          <div class="up-avatar" id="up-avatar-wrap">
+            <span id="up-avatar-text">C</span>
             <span class="up-avatar-status"></span>
           </div>
           <div class="up-user-info">
-            <div class="up-name">Chaitanya</div>
+            <div class="up-name" id="up-user-name">Chaitanya</div>
             <div class="up-email" id="up-email">chaitanya@infrapilot.dev</div>
-            <span class="up-role-badge">DEVOPS LEAD</span>
+            <span class="up-role-badge" id="up-role-badge">DEVOPS LEAD</span>
           </div>
         </div>
 
@@ -931,6 +938,6 @@
   <!-- Click-away overlay for user panel -->
   <div class="user-panel-backdrop" id="user-panel-backdrop" onclick="closeUserPanel()"></div>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=2.6"></script>
 </body>
 </html>
